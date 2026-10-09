@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Sound of My World — The Discussion</title>
+<style>
+:root{
+  --paper:#f7f5ef;--card:#fffefa;--ink:#202b36;--muted:#65727d;
+  --blue:#426b84;--blue-pale:#e7eff2;--orange:#d77d51;--line:#e7e3da;
+  --sage:#dfe8e1;--green:#587667;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:1120px;margin:auto;padding:24px 20px 40px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:30px}
+.brand{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:800;text-decoration:none}
+.brand:hover{color:var(--ink)}
+.head-actions{display:flex;gap:8px}
+button{font:inherit;cursor:pointer}
+.smallbtn,.secondary{border:1px solid #dcded8;background:var(--card);border-radius:999px;padding:9px 13px;color:var(--ink);font-size:12px;font-weight:750;text-decoration:none;text-align:center}
+.smallbtn:hover,.secondary:hover{border-color:#9bb3bf}
+.smallbtn.dark{background:var(--ink);color:#fff;border-color:var(--ink)}
+button:focus-visible,a:focus-visible{outline:3px solid #e4a17d;outline-offset:3px}
+.hero{max-width:760px;text-align:center;margin:0 auto 27px}
+.eyebrow{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--orange);font-weight:850}
+h1{font:500 clamp(36px,5.6vw,61px)/1.02 Georgia,serif;letter-spacing:-.045em;margin:13px 0}
+.hero p{max-width:680px;margin:0 auto;color:var(--muted);font-size:14px;line-height:1.8}
+.grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(300px,.8fr);gap:17px;align-items:stretch}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 9px 32px #26344208}
+.scenehead{padding:17px 19px 13px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:10px;font-weight:850;letter-spacing:.09em}
+.status{display:flex;align-items:center;gap:7px;font-size:9px;color:var(--muted);letter-spacing:.05em}
+.dot{width:7px;height:7px;border-radius:50%;background:#aab3ae}
+.dot.on{background:var(--orange);box-shadow:0 0 0 4px #d77d511c}
+.map-wrap{padding:0 13px}
+.map{position:relative;background:#edf1ed;border-radius:16px;overflow:hidden}
+.map svg{display:block;width:100%;height:auto}
+.map .seat{cursor:pointer;outline:none}
+.map .seat:focus-visible .seatbody{stroke:var(--orange);stroke-width:4}
+.map .seat.selected .seatbody{stroke:var(--orange);stroke-width:4}
+.map .seat.selected .person{filter:drop-shadow(0 2px 2px #d77d5160)}
+.map .seat .seatname{font:700 10px system-ui;fill:#53655c}
+.map .seat.selected .seatname{fill:#a9552e}
+.map .desk{fill:#d9cbb7;stroke:#c4b49c;stroke-width:1.5}
+.room-label{font:800 10px system-ui;letter-spacing:1.7px;fill:#71877c}
+.sound-ring{fill:none;stroke:var(--orange);stroke-width:2.5;opacity:0;transform-box:fill-box;transform-origin:center}
+.sound-ring.active{animation:ripple 2.2s ease-out infinite}
+.sound-ring.delay{animation-delay:.65s}
+.sound-ring.delay2{animation-delay:1.3s}
+@keyframes ripple{0%{opacity:.72;transform:scale(.55)}100%{opacity:0;transform:scale(1.6)}}
+.voice-path{fill:none;stroke:var(--blue);stroke-width:3;stroke-linecap:round;opacity:0;transition:opacity .25s}
+.voice-path.visible{opacity:.8}
+.voice-path.quiet{stroke-dasharray:3 9;stroke-width:2.5}
+.voice-path.loud{stroke-width:5}
+.path-dot{fill:var(--blue);opacity:0}
+.path-dot.visible{opacity:1}
+.legend{display:flex;gap:13px;flex-wrap:wrap;padding:12px 18px 0;font-size:10px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:18px;height:3px;border-radius:4px;background:var(--blue)}
+.legend .broken{height:0;border-top:2px dashed var(--blue);background:none}
+.legend .pulse{width:9px;height:9px;border:2px solid var(--orange);border-radius:50%;background:none}
+.scenefoot{padding:13px 18px 17px;font-size:11px;color:var(--muted);line-height:1.65}
+.panel{padding:21px}
+.panel h2{font:500 27px/1.1 Georgia,serif;margin:0 0 8px}
+.panel>p{font-size:12px;line-height:1.7;color:var(--muted);margin:0 0 18px}
+.speaker-list{display:grid;gap:8px}
+.speaker{display:flex;align-items:center;gap:11px;padding:11px;border:1px solid var(--line);border-radius:13px;background:var(--card);text-align:left;width:100%;transition:border-color .2s,background .2s}
+.speaker:hover{border-color:#9bb3bf}
+.speaker.active{background:#fff7f1;border-color:var(--orange)}
+.location-mark{width:34px;height:34px;border-radius:11px;background:var(--blue-pale);display:grid;place-items:center;flex-shrink:0}
+.location-mark svg{width:19px;height:19px}
+.speaker.active .location-mark{background:#f8e4d7}
+.speaker-copy{flex:1;min-width:0}
+.speaker-copy b{font-size:12px;display:block}
+.speaker-copy small{font-size:10px;color:var(--muted);display:block;margin-top:4px;line-height:1.4}
+.level{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);white-space:nowrap}
+.action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}
+.primary{width:100%;border:0;background:var(--blue);color:white;border-radius:12px;padding:13px 15px;font-size:12px;font-weight:850}
+.primary:hover{background:#34586e}
+.secondary{border-radius:12px;padding:12px 10px}
+.caption{margin-top:13px;padding:13px;background:#f2f0e9;border-radius:12px;color:#656b64;font-size:11px;line-height:1.65}
+.caption strong{color:var(--ink)}
+.effort-card{margin-top:14px;padding:15px 14px 13px;border:1px solid #e7e3da;border-radius:15px;background:linear-gradient(135deg,#f7f5ef 0%,#f0f3ef 100%)}
+.effort-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.effort-kicker{font-size:9px;font-weight:850;letter-spacing:.13em;color:var(--orange)}
+.effort-card h3{font:500 19px/1.2 Georgia,serif;margin:5px 0 0}
+.effort-visual{display:flex;align-items:center;gap:3px;height:29px;padding:0 5px}
+.effort-visual span{display:block;width:4px;height:8px;border-radius:5px;background:#b7c8be;transition:height .35s ease,background .35s ease}
+.effort-visual span:nth-child(2),.effort-visual span:nth-child(4){height:13px}
+.effort-visual span:nth-child(3){height:18px}
+.effort-visual.high span:nth-child(1){height:12px}.effort-visual.high span:nth-child(2){height:20px}.effort-visual.high span:nth-child(3){height:28px}.effort-visual.high span:nth-child(4){height:22px}.effort-visual.high span:nth-child(5){height:15px}
+.effort-visual.high span{background:var(--orange)}
+.effort-meter{display:flex;gap:5px;margin-top:13px}
+.effort-meter i{height:6px;flex:1;border-radius:99px;background:#dce3dd;transition:background .3s ease,transform .3s ease}
+.effort-meter i.on{background:var(--green)}
+.effort-meter.high i.on{background:var(--orange)}
+.effort-scale{display:flex;justify-content:space-between;margin-top:6px;color:#818980;font-size:9px}
+.effort-card p{font-size:11px;line-height:1.65;color:#59665e;margin:11px 0 0}
+.effort-note{font-size:9px;line-height:1.5;color:#8a9189;margin-top:7px}
+.now-playing{display:flex;align-items:center;gap:9px;margin:0 0 14px;padding:11px 12px;border-radius:12px;background:#eef2ee}
+.equalizer{display:flex;align-items:center;gap:3px;height:20px}
+.equalizer i{display:block;width:3px;height:7px;border-radius:3px;background:var(--green)}
+.equalizer.playing i{animation:bar .7s ease-in-out infinite alternate}
+.equalizer.playing i:nth-child(2){animation-delay:.15s}.equalizer.playing i:nth-child(3){animation-delay:.3s}.equalizer.playing i:nth-child(4){animation-delay:.1s}
+@keyframes bar{to{height:18px}}
+.now-copy{font-size:10px;line-height:1.45;color:var(--muted)}
+.now-copy b{display:block;font-size:11px;color:var(--ink);margin-bottom:2px}
+.ending{display:none;margin:18px auto 0;max-width:880px;background:#e9efeb;border:1px solid #d8e2db;border-radius:20px;padding:26px;text-align:center}
+.ending.show{display:block;animation:fade .35s ease-out}
+.ending h2{font:500 clamp(27px,4vw,40px)/1.12 Georgia,serif;margin:10px 0}
+.ending p{max-width:690px;margin:0 auto;color:#53635a;font-size:13px;line-height:1.8}
+.ending .home-link{display:inline-block;margin-top:18px}
+.last{font:italic 19px Georgia,serif;margin-top:13px}
+footer{text-align:center;color:#929890;font-size:10px;line-height:1.7;margin-top:20px}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+/* Paused */
+body.paused .sound-ring.active{animation-play-state:paused}
+.pause-overlay{position:fixed;inset:0;z-index:50;display:none;place-items:center;background:#f7f5efdd;backdrop-filter:blur(3px)}
+body.paused .pause-overlay{display:grid}
+.pause-card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:32px 34px;text-align:center;box-shadow:0 14px 40px #26344214;max-width:calc(100% - 32px)}
+.pause-card h2{font:500 44px/1 Georgia,serif;letter-spacing:-.03em;margin:0 0 10px}
+.pause-card p{color:var(--muted);font-size:14px;margin:0 0 24px}
+.pause-actions{display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
+.pause-actions .primary{width:auto;padding:11px 18px;font-size:13px}
+@media(max-width:790px){.grid{grid-template-columns:1fr}.wrap{padding:18px 12px 32px}.panel{padding:18px}.map svg{min-height:220px}}
+@media(max-width:440px){.level{display:none}.hero p{font-size:13px}.head-actions{flex-direction:column}.scenehead{font-size:9px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="brand" href="./">← The Sound of My World</a>
+  <div class="head-actions">
+    <button class="smallbtn dark" id="pauseExperience" title="Pause (Space)">❚❚ Pause</button>
+    <a class="smallbtn" href="./">← Home</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">Scene 03 · The discussion</div>
+  <h1>I chose this seat<br>to hear the professor.</h1>
+  <p>I'm in the second row because that's where I can follow the professor best. Then the discussion starts. Classmates speak from all over the room — and following the conversation becomes more complicated.</p>
+</section>
+
+<main class="grid">
+  <section class="card">
+    <div class="scenehead">
+      <span>THE CLASSROOM, FROM ABOVE</span>
+      <span class="status"><span class="dot" id="statusDot"></span><span id="statusText">CHOOSE A SPEAKER</span></span>
+    </div>
+    <div class="map-wrap">
+      <div class="map" id="map">
+        <svg viewBox="0 0 650 500" role="img" aria-label="Top-down classroom seating map. Select a classmate to see how the voice travels across the room.">
+          <rect width="650" height="500" rx="15" fill="#edf1ed"/>
+          <rect x="80" y="25" width="490" height="53" rx="8" fill="#d8e4df" stroke="#c6d4cc"/>
+          <text x="325" y="47" text-anchor="middle" class="room-label">FRONT OF CLASS</text>
+          <g transform="translate(325 67)">
+            <circle cx="0" cy="-6" r="8" fill="#c98d6c"/><path d="M-11 5 Q0 -2 11 5 L13 19 H-13Z" fill="#496b7c"/>
+          </g>
+          <text x="325" y="101" text-anchor="middle" class="room-label">PROFESSOR</text>
+          <path d="M325 118 V470" stroke="#d5ddd7" stroke-dasharray="4 8" stroke-width="2"/>
+          <g class="desk">
+            <rect x="88" y="125" width="90" height="29" rx="5"/><rect x="210" y="125" width="90" height="29" rx="5"/><rect x="350" y="125" width="90" height="29" rx="5"/><rect x="472" y="125" width="90" height="29" rx="5"/>
+            <rect x="88" y="207" width="90" height="29" rx="5"/><rect x="210" y="207" width="90" height="29" rx="5"/><rect x="350" y="207" width="90" height="29" rx="5"/><rect x="472" y="207" width="90" height="29" rx="5"/>
+            <rect x="88" y="289" width="90" height="29" rx="5"/><rect x="210" y="289" width="90" height="29" rx="5"/><rect x="350" y="289" width="90" height="29" rx="5"/><rect x="472" y="289" width="90" height="29" rx="5"/>
+            <rect x="88" y="371" width="90" height="29" rx="5"/><rect x="210" y="371" width="90" height="29" rx="5"/><rect x="350" y="371" width="90" height="29" rx="5"/><rect x="472" y="371" width="90" height="29" rx="5"/>
+          </g>
+          <!-- Sound paths are deliberately illustrative, not acoustic measurements. -->
+          <path id="voicePath" class="voice-path" d="M520 304 Q440 275 325 244"/>
+          <circle id="pathDot" class="path-dot" cx="325" cy="244" r="5"/>
+          <g id="professorSeat">
+            <circle cx="325" cy="137" r="25" fill="#dfe8e1" stroke="#bdcdc2" stroke-width="1.5"/>
+            <circle cx="325" cy="132" r="8" fill="#c98d6c"/>
+            <path d="M312 147 Q325 137 338 147 L341 159 H309Z" fill="#496b7c"/>
+          </g>
+          <!-- Listener: the central anchor for the voice paths -->
+          <g id="listener">
+            <circle cx="325" cy="244" r="34" fill="#dbe8ee" stroke="#9db8c5" stroke-width="2"/>
+            <circle cx="325" cy="237" r="10" fill="#c98d6c"/>
+            <path d="M308 254 Q325 241 342 254 L346 270 H304Z" fill="#426b84"/>
+            <text x="325" y="289" text-anchor="middle" font-size="10" font-weight="800" fill="#426b84">YOU</text>
+          </g>
+          <!-- Selectable classmates -->
+          <g class="seat" data-speaker="thirdCorner" tabindex="0" role="button" aria-label="Select classmate in third row, right corner">
+            <circle class="sound-ring" id="ring-thirdCorner" cx="520" cy="304" r="25"/>
+            <circle class="sound-ring delay" cx="520" cy="304" r="25"/>
+            <rect class="seatbody" x="488" y="270" width="64" height="64" rx="16" fill="#fffefa" stroke="#d3dcd4" stroke-width="1.5"/>
+            <circle class="person" cx="520" cy="292" r="8" fill="#bd8568"/><path d="M507 310 Q520 299 533 310 L536 321 H504Z" fill="#6f9688"/>
+            <text class="seatname" x="520" y="349" text-anchor="middle">3RD ROW · RIGHT</text>
+          </g>
+          <g class="seat" data-speaker="fifthRight" tabindex="0" role="button" aria-label="Select classmate in fifth row, right corner">
+            <circle class="sound-ring" id="ring-fifthRight" cx="520" cy="423" r="25"/>
+            <circle class="sound-ring delay" cx="520" cy="423" r="25"/>
+            <rect class="seatbody" x="488" y="389" width="64" height="64" rx="16" fill="#fffefa" stroke="#d3dcd4" stroke-width="1.5"/>
+            <circle class="person" cx="520" cy="411" r="8" fill="#d5a17e"/><path d="M507 429 Q520 418 533 429 L536 440 H504Z" fill="#c08a68"/>
+            <text class="seatname" x="520" y="468" text-anchor="middle">5TH ROW · RIGHT</text>
+          </g>
+          <g class="seat" data-speaker="fifthLeft" tabindex="0" role="button" aria-label="Select classmate in fifth row, left corner">
+            <circle class="sound-ring" id="ring-fifthLeft" cx="130" cy="423" r="25"/>
+            <circle class="sound-ring delay" cx="130" cy="423" r="25"/>
+            <rect class="seatbody" x="98" y="389" width="64" height="64" rx="16" fill="#fffefa" stroke="#d3dcd4" stroke-width="1.5"/>
+            <circle class="person" cx="130" cy="411" r="8" fill="#d3b2a0"/><path d="M117 429 Q130 418 143 429 L146 440 H114Z" fill="#9b7e9b"/>
+            <text class="seatname" x="130" y="468" text-anchor="middle">5TH ROW · LEFT</text>
+          </g>
+          <g class="seat" data-speaker="thirdLeft" tabindex="0" role="button" aria-label="Select classmate in third row, left side">
+            <circle class="sound-ring" id="ring-thirdLeft" cx="130" cy="304" r="25"/>
+            <circle class="sound-ring delay" cx="130" cy="304" r="25"/>
+            <rect class="seatbody" x="98" y="270" width="64" height="64" rx="16" fill="#fffefa" stroke="#d3dcd4" stroke-width="1.5"/>
+            <circle class="person" cx="130" cy="292" r="8" fill="#c5a1c0"/><path d="M117 310 Q130 299 143 310 L146 321 H114Z" fill="#879b8b"/>
+            <text class="seatname" x="130" y="349" text-anchor="middle">3RD ROW · LEFT</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="pulse"></i> Speaking</span>
+      <span><i></i> Voice path</span>
+      <span><i class="broken"></i> Fainter / harder to follow</span>
+    </div>
+    <div class="scenefoot" id="sceneFoot">Select a seat to see an illustrative voice path across the room. The map is a storytelling device, not a measurement of real sound.</div>
+  </section>
+
+  <aside class="card panel">
+    <h2>Who’s speaking?</h2>
+    <p>In a discussion, a voice can come from anywhere. Select a classmate to hear their contribution and see where they’re sitting.</p>
+    <div class="now-playing">
+      <div class="equalizer" id="equalizer" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <div class="now-copy"><b id="nowTitle">Conversation is waiting</b><span id="nowSub">Choose any classmate to begin.</span></div>
+    </div>
+    <div class="speaker-list">
+      <button class="speaker" data-speaker="thirdCorner">
+        <span class="location-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5h16v14" stroke="#426b84" stroke-width="1.7"/><circle cx="17" cy="8" r="2.5" fill="#d77d51"/><path d="M17 12v4" stroke="#d77d51" stroke-width="2" stroke-linecap="round"/></svg></span>
+        <span class="speaker-copy"><b>Third row · right corner</b><small>Quiet voice, just behind you</small></span><span class="level">Quiet</span>
+      </button>
+      <button class="speaker" data-speaker="fifthRight">
+        <span class="location-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5h16v14" stroke="#426b84" stroke-width="1.7"/><circle cx="17" cy="8" r="2.5" fill="#d77d51"/><path d="M17 12v4" stroke="#d77d51" stroke-width="2" stroke-linecap="round"/></svg></span>
+        <span class="speaker-copy"><b>Fifth row · right corner</b><small>Farther away, speaking softly</small></span><span class="level">Very quiet</span>
+      </button>
+      <button class="speaker" data-speaker="fifthLeft">
+        <span class="location-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5h16v14" stroke="#426b84" stroke-width="1.7"/><circle cx="7" cy="8" r="2.5" fill="#d77d51"/><path d="M7 12v4" stroke="#d77d51" stroke-width="2" stroke-linecap="round"/></svg></span>
+        <span class="speaker-copy"><b>Fifth row · left corner</b><small>Farther away, but speaking loudly</small></span><span class="level">Loud</span>
+      </button>
+      <button class="speaker" data-speaker="thirdLeft">
+        <span class="location-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19V5h16v14" stroke="#426b84" stroke-width="1.7"/><circle cx="7" cy="8" r="2.5" fill="#d77d51"/><path d="M7 12v4" stroke="#d77d51" stroke-width="2" stroke-linecap="round"/></svg></span>
+        <span class="speaker-copy"><b>Third row · left side</b><small>Quiet voice, off to your left</small></span><span class="level">Quiet</span>
+      </button>
+    </div>
+    <section class="effort-card" aria-live="polite">
+      <div class="effort-top">
+        <div>
+          <div class="effort-kicker">WHAT IT TAKES TO FOLLOW</div>
+          <h3 id="effortTitle">Listening takes attention</h3>
+        </div>
+        <div class="effort-visual" id="effortVisual" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+      <div class="effort-meter" id="effortMeter" role="img" aria-label="Illustrative listening effort: not yet rated">
+        <i></i><i></i><i></i><i></i><i></i>
+      </div>
+      <div class="effort-scale"><span>Less effort</span><span>More effort</span></div>
+      <p id="effortCopy">When a voice is hard to catch, I have to concentrate more closely and work to keep up with the conversation.</p>
+      <div class="effort-note">A visual expression of my experience, not a scientific measurement.</div>
+    </section>
+    <div class="action-row">
+      <button class="primary" id="playBtn">▶ Play contribution</button>
+      <button class="secondary" id="stopBtn">■ Stop sound</button>
+    </div>
+    <div class="caption" id="caption"><strong>What changes:</strong> You’re seated close to the professor, but classmates don’t speak from one fixed direction. Finding and following a voice is part of the effort.</div>
+  </aside>
+</main>
+
+<section class="ending" id="ending">
+  <div class="eyebrow">The discussion begins</div>
+  <h2>The best seat for the lecture isn't always the best seat for discussion.</h2>
+  <p>I'm close to the professor, but my classmates can speak from anywhere. A quiet voice from behind me can be harder to follow, while someone farther away may be easier to hear simply because they speak more loudly.</p>
+  <div class="last">In a discussion, listening also means finding the person who's speaking.</div>
+  <a class="secondary home-link" href="./">← Back to home</a>
+</section>
+<footer>Illustrative experience based on a personal perspective. Voice levels and paths are simplified storytelling cues, not an accurate simulation of hearing loss, room acoustics, or a hearing device.</footer>
+</div>
+
+<div class="pause-overlay" id="pauseOverlay" role="dialog" aria-label="Discussion paused">
+  <div class="pause-card">
+    <h2>Paused</h2>
+    <p>The discussion is waiting for you.</p>
+    <div class="pause-actions">
+      <button class="primary" id="resumeBtn">▶ Resume</button>
+      <button class="secondary" id="restartBtn">Start over</button>
+      <a class="secondary" href="./">Back to home</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const profiles = {
+    thirdCorner:{name:'Third row · right corner',text:'I think we should look at the customer experience first, because that changes how we evaluate the whole product.',volume:.10,rate:1.02,pitch:1.22,loc:{x:520,y:304},kind:'quiet',effort:4,effortTitle:'I have to work harder to follow',effortCopy:'I lean in mentally, focus on each word, and try to fill in what I miss so I don’t lose the thread.' ,desc:'A quiet voice from just behind you, to the right.'},
+    fifthRight:{name:'Fifth row · right corner',text:'I agree with that point, but I would add that the cost of implementation matters just as much.',volume:.035,rate:.91,pitch:.75,loc:{x:520,y:423},kind:'veryquiet',effort:5,effortTitle:'Following takes a lot more effort',effortCopy:'The voice is faint, so I have to concentrate intensely and piece together the sentence. It’s easy to lose a few words — and the point.' ,desc:'A softer voice from farther behind you, to the right.'},
+    fifthLeft:{name:'Fifth row · left corner',text:'I see it differently. If we start with the user problem, I think the recommendation becomes much clearer.',volume:.62,rate:1.08,pitch:1.42,loc:{x:130,y:423},kind:'loud',effort:1,effortTitle:'This voice is easier to catch',effortCopy:'Even from farther away, a stronger voice is easier for me to notice and follow. The distance matters — but it isn’t the whole story.' ,desc:'A louder voice from farther behind you, to the left.'},
+    thirdLeft:{name:'Third row · left side',text:'Could we also consider what happens after launch? Adoption might be a bigger challenge than building the product.',volume:.085,rate:.96,pitch:1.05,loc:{x:130,y:304},kind:'quiet',effort:4,effortTitle:'I have to work harder to follow',effortCopy:'I try to hold my attention on the speaker and reconstruct the words I don’t catch. Meanwhile, the conversation keeps moving.' ,desc:'A quiet voice from behind you, to the left.'}
+  };
+  let selected=null, paused=false, playing=false, wasPlaying=false, currentUtterance=null;
+  const heard=new Set();
+  const supportsSpeech = 'speechSynthesis' in window;
+  const voicePath=$('voicePath'), pathDot=$('pathDot');
+  // Remember the opening text so "Start over" can put the scene back exactly as it began.
+  const RESET_IDS=['statusText','nowTitle','nowSub','caption','effortTitle','effortCopy','sceneFoot'];
+  const initial=Object.fromEntries(RESET_IDS.map(id=>[id,$(id).innerHTML]));
+
+  function stopSpeech(){
+    currentUtterance=null; playing=false;
+    if(supportsSpeech) window.speechSynthesis.cancel();
+    $('equalizer').classList.remove('playing');
+  }
+  function clearActive(){
+    document.querySelectorAll('.speaker,.seat').forEach(el=>el.classList.remove('active','selected'));
+    document.querySelectorAll('.sound-ring').forEach(el=>el.classList.remove('active'));
+    voicePath.classList.remove('visible','quiet','loud');
+    pathDot.classList.remove('visible');
+  }
+  function updateEffort(p){
+    const meter=$('effortMeter');
+    const bars=[...meter.querySelectorAll('i')];
+    bars.forEach((bar,i)=>bar.classList.toggle('on',i<p.effort));
+    meter.classList.toggle('high',p.effort>=4);
+    $('effortTitle').textContent=p.effortTitle;
+    $('effortCopy').textContent=p.effortCopy;
+    $('effortVisual').classList.toggle('high',p.effort>=4);
+    meter.setAttribute('aria-label',`Illustrative listening effort: ${p.effort} out of 5`);
+  }
+  function selectSpeaker(key, autoPlay=false){
+    if(!profiles[key]) return;
+    selected=key;
+    const p=profiles[key];
+    clearActive();
+    document.querySelectorAll(`[data-speaker="${key}"]`).forEach(el=>el.classList.add(el.classList.contains('seat')?'selected':'active'));
+    document.querySelectorAll(`#ring-${key}, #ring-${key} ~ .sound-ring`).forEach(el=>el.classList.add('active'));
+    // The curve connects the selected voice to the listener; its style cues relative audibility.
+    const mx=(p.loc.x+325)/2, my=(p.loc.y+244)/2-25;
+    voicePath.setAttribute('d',`M ${p.loc.x} ${p.loc.y} Q ${mx} ${my} 325 244`);
+    voicePath.classList.add('visible');
+    if(p.kind==='quiet'||p.kind==='veryquiet') voicePath.classList.add('quiet');
+    if(p.kind==='loud') voicePath.classList.add('loud');
+    pathDot.setAttribute('cx',325);pathDot.setAttribute('cy',244);pathDot.classList.add('visible');
+    $('statusDot').classList.add('on');
+    $('statusText').textContent='CLASSMATE SPEAKING';
+    $('nowTitle').textContent=p.name;
+    $('nowSub').textContent=p.desc;
+    $('caption').innerHTML=`<strong>What changes:</strong> ${p.desc} The voice path is shown as ${p.kind==='loud'?'stronger and more continuous':'fainter and more fragmented'} to make the difference visible.`;
+    updateEffort(p);
+    $('sceneFoot').textContent=p.kind==='loud'
+      ?'This classmate is farther away, but their louder voice is easier to notice.'
+      :'This classmate is speaking quietly. Notice how the effort indicator rises: following a faint voice can mean concentrating harder, filling in missed words, and trying not to lose the thread.';
+    $('playBtn').textContent='▶ Play contribution';
+    stopSpeech();
+    if(autoPlay) playSpeech();
+  }
+  function playSpeech(){
+    if(!selected || paused) return;
+    if(!supportsSpeech){
+      $('nowSub').textContent='Speech playback is not supported in this browser.';
+      return;
+    }
+    stopSpeech();
+    const key=selected, p=profiles[key], utterance=new SpeechSynthesisUtterance(p.text);
+    currentUtterance=utterance;
+    utterance.volume=p.volume;utterance.rate=p.rate;utterance.pitch=p.pitch;
+    utterance.onstart=()=>{
+      if(utterance!==currentUtterance) return;
+      playing=true;$('equalizer').classList.add('playing');$('nowSub').textContent='Playing this classmate’s contribution';$('playBtn').textContent='▶ Replay contribution';
+    };
+    utterance.onend=()=>{
+      // Ignore "end" events from a cancelled contribution (pause, stop, or another speaker).
+      if(utterance!==currentUtterance) return;
+      playing=false;$('equalizer').classList.remove('playing');$('nowSub').textContent='Contribution finished · choose another voice';
+      // After hearing two different classmates, the closing thought appears.
+      heard.add(key);
+      if(heard.size>=2) $('ending').classList.add('show');
+    };
+    utterance.onerror=()=>{ if(utterance!==currentUtterance) return; playing=false;$('equalizer').classList.remove('playing'); };
+    window.speechSynthesis.speak(utterance);
+  }
+
+  /* Pause and resume. Browser speech can't reliably pause mid-sentence,
+     so an interrupted contribution starts again from the beginning. */
+  function pauseScene(){
+    if(paused) return;
+    wasPlaying=playing || !!currentUtterance;
+    stopSpeech();
+    paused=true;
+    document.body.classList.add('paused');
+    $('resumeBtn').focus();
+  }
+  function resumeScene(){
+    if(!paused) return;
+    paused=false;
+    document.body.classList.remove('paused');
+    if(wasPlaying) playSpeech();
+    else if(selected) $('nowSub').textContent='Choose Play contribution to hear this voice again';
+    wasPlaying=false;
+  }
+  function startOver(){
+    paused=false; wasPlaying=false; selected=null; heard.clear();
+    document.body.classList.remove('paused');
+    stopSpeech(); clearActive();
+    RESET_IDS.forEach(id=>{ $(id).innerHTML=initial[id]; });
+    $('statusDot').classList.remove('on');
+    $('effortMeter').querySelectorAll('i').forEach(bar=>bar.classList.remove('on'));
+    $('effortMeter').classList.remove('high'); $('effortVisual').classList.remove('high');
+    $('effortMeter').setAttribute('aria-label','Illustrative listening effort: not yet rated');
+    $('playBtn').textContent='▶ Play contribution';
+    $('ending').classList.remove('show');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  document.querySelectorAll('[data-speaker]').forEach(el=>{
+    const key=el.dataset.speaker;
+    el.addEventListener('click',()=>selectSpeaker(key,true));
+    if(el.classList.contains('seat')) el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();selectSpeaker(key,true);}});
+  });
+  $('playBtn').addEventListener('click',playSpeech);
+  $('stopBtn').addEventListener('click',()=>{stopSpeech();$('nowSub').textContent='Sound stopped';});
+  $('pauseExperience').addEventListener('click',pauseScene);
+  $('resumeBtn').addEventListener('click',resumeScene);
+  $('restartBtn').addEventListener('click',startOver);
+  document.addEventListener('keydown',e=>{
+    if(e.key===' ' && !e.target.closest('button, a, .seat')){ e.preventDefault(); paused?resumeScene():pauseScene(); }
+    if(e.key==='Escape' && paused) resumeScene();
+  });
+  // Switching tabs pauses the scene instead of letting it play on unseen.
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden && (playing || currentUtterance)) pauseScene(); });
+  if(supportsSpeech) window.speechSynthesis.onvoiceschanged=()=>{};
+})();
+</script>
+</body>
+</html>

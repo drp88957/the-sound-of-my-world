@@ -64,7 +64,7 @@
 
     .scenes {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, 1fr);
       gap: 18px;
     }
 
@@ -237,15 +237,75 @@
       50%      { opacity: 1;   transform: scale(1.1); }
     }
 
+    /* ---- Discussion art: the room from above, voices from behind you ---- */
+
+    .discussion .art { background: #edf1ed; padding: 16px 26px 18px; }
+    .discussion .tag { color: var(--blue); }
+
+    .front {
+      height: 22px;
+      border-radius: 6px;
+      background: #d8e4df;
+      margin: 0 12% 14px;
+    }
+
+    .seats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px 16px;
+    }
+
+    .seats span {
+      height: 22px;
+      border-radius: 5px;
+      background: #d9cbb7;
+      position: relative;
+    }
+
+    .seats .you { background: #dbe8ee; box-shadow: 0 0 0 2px #9db8c5; }
+
+    .seats .you::after {
+      content: "YOU";
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      color: var(--blue);
+    }
+
+    .seats .voice::before {
+      content: "";
+      position: absolute;
+      left: 50%; top: 50%;
+      width: 30px; height: 30px;
+      margin: -15px 0 0 -15px;
+      border: 2px solid var(--orange);
+      border-radius: 50%;
+      animation: speak 2.2s ease-out infinite;
+    }
+
+    .seats .voice.later::before { animation-delay: 1.1s; }
+
+    @keyframes speak {
+      0%   { opacity: .8; transform: scale(.5); }
+      100% { opacity: 0;  transform: scale(1.6); }
+    }
+
     footer { margin-top: 36px; font-size: 12px; color: #929890; line-height: 1.6; }
+
+    @media (max-width: 960px) {
+      .scenes { grid-template-columns: 1fr; max-width: 560px; }
+    }
 
     @media (max-width: 760px) {
       .app { width: calc(100% - 20px); margin: 20px auto; padding: 40px 22px 28px; }
-      .scenes { grid-template-columns: 1fr; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .call-grid span.talk, .ripple { animation: none; }
+      .call-grid span.talk, .ripple, .seats .voice::before { animation: none; }
       .scene-card { transition: none; }
     }
   </style>
@@ -256,8 +316,8 @@
   <div class="eyebrow">An interactive listening experience</div>
   <h1>The Sound of My World</h1>
   <p class="intro">
-    Two ordinary places: a team call and a classroom. Step into each one and
-    try to keep up with what you need to hear.
+    Three ordinary moments: a team call, a lecture, and a class discussion.
+    Step into each one and try to keep up with what you need to hear.
   </p>
 
   <div class="scenes">
@@ -282,8 +342,8 @@
         </div>
       </div>
       <div class="copy">
-        <span class="tag">Scene 01 · The meeting</span>
-        <h2>How would you follow this meeting?</h2>
+        <span class="tag">01 · The Meeting</span>
+        <h2>Fifteen voices. One conversation.</h2>
         <p>A 30-minute team call with 15 people, compressed into 30 seconds. Voices overlap, and the captions lag and get words wrong.</p>
         <span class="enter">Join the call →</span>
       </div>
@@ -301,10 +361,28 @@
         <span class="ripple c"></span>
       </div>
       <div class="copy">
-        <span class="tag">Scene 02 · The classroom</span>
+        <span class="tag">02 · The Classroom</span>
         <h2>All I want to hear is the professor.</h2>
         <p>Turn the lecture up, and the chair scraping, snack wrapper, and turning pages get louder too.</p>
         <span class="enter">Enter the classroom →</span>
+      </div>
+    </a>
+
+    <a class="scene-card discussion" href="discussion.html">
+      <div class="art" aria-hidden="true">
+        <div class="front"></div>
+        <div class="seats">
+          <span></span><span></span><span></span><span></span>
+          <span></span><span class="you"></span><span></span><span></span>
+          <span></span><span></span><span></span><span class="voice"></span>
+          <span class="voice later"></span><span></span><span></span><span></span>
+        </div>
+      </div>
+      <div class="copy">
+        <span class="tag">03 · The Discussion</span>
+        <h2>I can hear the professor. But can I hear my classmates?</h2>
+        <p>A seat near the front helps with the lecture. Then the discussion starts, and voices come from all around the room.</p>
+        <span class="enter">Join the discussion →</span>
       </div>
     </a>
   </div>
