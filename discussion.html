@@ -43,6 +43,8 @@ h1{font:500 clamp(36px,5.6vw,61px)/1.02 Georgia,serif;letter-spacing:-.045em;mar
 .map .seat.selected .seatname{fill:#a9552e}
 .map .desk{fill:#d9cbb7;stroke:#c4b49c;stroke-width:1.5}
 .room-label{font:800 10px system-ui;letter-spacing:1.7px;fill:#71877c}
+.map .chair{fill:#dfe6e0;stroke:#cbd6ce;stroke-width:1.5}
+.row-num{font:800 9px system-ui;letter-spacing:1px;fill:#9aa9a1}
 .sound-ring{fill:none;stroke:var(--orange);stroke-width:2.5;opacity:0;transform-box:fill-box;transform-origin:center}
 .sound-ring.active{animation:ripple 2.2s ease-out infinite}
 .sound-ring.delay{animation-delay:.65s}
@@ -151,66 +153,72 @@ body.paused .pause-overlay{display:grid}
     </div>
     <div class="map-wrap">
       <div class="map" id="map">
-        <svg viewBox="0 0 650 500" role="img" aria-label="Top-down classroom seating map. Select a classmate to see how the voice travels across the room.">
+        <svg viewBox="0 0 650 500" role="img" aria-label="Top-down classroom seating map. You sit in the second row, centre. Select a classmate to see how the voice travels across the room.">
           <rect width="650" height="500" rx="15" fill="#edf1ed"/>
-          <rect x="80" y="25" width="490" height="53" rx="8" fill="#d8e4df" stroke="#c6d4cc"/>
-          <text x="325" y="47" text-anchor="middle" class="room-label">FRONT OF CLASS</text>
-          <g transform="translate(325 67)">
-            <circle cx="0" cy="-6" r="8" fill="#c98d6c"/><path d="M-11 5 Q0 -2 11 5 L13 19 H-13Z" fill="#496b7c"/>
-          </g>
-          <text x="325" y="101" text-anchor="middle" class="room-label">PROFESSOR</text>
-          <path d="M325 118 V470" stroke="#d5ddd7" stroke-dasharray="4 8" stroke-width="2"/>
-          <g class="desk">
-            <rect x="88" y="125" width="90" height="29" rx="5"/><rect x="210" y="125" width="90" height="29" rx="5"/><rect x="350" y="125" width="90" height="29" rx="5"/><rect x="472" y="125" width="90" height="29" rx="5"/>
-            <rect x="88" y="207" width="90" height="29" rx="5"/><rect x="210" y="207" width="90" height="29" rx="5"/><rect x="350" y="207" width="90" height="29" rx="5"/><rect x="472" y="207" width="90" height="29" rx="5"/>
-            <rect x="88" y="289" width="90" height="29" rx="5"/><rect x="210" y="289" width="90" height="29" rx="5"/><rect x="350" y="289" width="90" height="29" rx="5"/><rect x="472" y="289" width="90" height="29" rx="5"/>
-            <rect x="88" y="371" width="90" height="29" rx="5"/><rect x="210" y="371" width="90" height="29" rx="5"/><rect x="350" y="371" width="90" height="29" rx="5"/><rect x="472" y="371" width="90" height="29" rx="5"/>
-          </g>
+          <rect x="150" y="18" width="350" height="28" rx="6" fill="#d8e4df" stroke="#c6d4cc"/>
+          <text x="325" y="36" text-anchor="middle" class="room-label">FRONT OF CLASS</text>
+          <g><path d="M313 84 Q325 74 337 84 L339 91 H311 Z" fill="#496b7c"/><circle cx="325" cy="69" r="7.5" fill="#4c4843"/></g>
+          <text x="350" y="76" class="room-label">PROFESSOR</text>
+          <text x="22" y="104" text-anchor="middle" class="row-num">ROW</text>
+          <text x="22" y="143" text-anchor="middle" class="row-num">1</text>
+          <text x="22" y="219" text-anchor="middle" class="row-num">2</text>
+          <text x="22" y="295" text-anchor="middle" class="row-num">3</text>
+          <text x="22" y="371" text-anchor="middle" class="row-num">4</text>
+          <text x="22" y="447" text-anchor="middle" class="row-num">5</text>
+          <rect class="desk" x="45" y="105" width="80" height="11" rx="4"/>
+          <rect class="chair" x="72" y="135" width="26" height="18" rx="6"/>
+          <rect class="desk" x="165" y="105" width="80" height="11" rx="4"/>
+          <rect class="chair" x="192" y="135" width="26" height="18" rx="6"/>
+          <rect class="desk" x="285" y="105" width="80" height="11" rx="4"/>
+          <rect class="chair" x="312" y="135" width="26" height="18" rx="6"/>
+          <rect class="desk" x="405" y="105" width="80" height="11" rx="4"/>
+          <rect class="chair" x="432" y="135" width="26" height="18" rx="6"/>
+          <rect class="desk" x="525" y="105" width="80" height="11" rx="4"/>
+          <rect class="chair" x="552" y="135" width="26" height="18" rx="6"/>
+          <rect class="desk" x="45" y="181" width="80" height="11" rx="4"/>
+          <rect class="chair" x="72" y="211" width="26" height="18" rx="6"/>
+          <rect class="desk" x="165" y="181" width="80" height="11" rx="4"/>
+          <rect class="chair" x="192" y="211" width="26" height="18" rx="6"/>
+          <rect class="desk" x="285" y="181" width="80" height="11" rx="4"/>
+          <rect class="desk" x="405" y="181" width="80" height="11" rx="4"/>
+          <rect class="chair" x="432" y="211" width="26" height="18" rx="6"/>
+          <rect class="desk" x="525" y="181" width="80" height="11" rx="4"/>
+          <rect class="chair" x="552" y="211" width="26" height="18" rx="6"/>
+          <rect class="desk" x="45" y="257" width="80" height="11" rx="4"/>
+          <rect class="chair" x="72" y="287" width="26" height="18" rx="6"/>
+          <rect class="desk" x="165" y="257" width="80" height="11" rx="4"/>
+          <rect class="desk" x="285" y="257" width="80" height="11" rx="4"/>
+          <rect class="chair" x="312" y="287" width="26" height="18" rx="6"/>
+          <rect class="desk" x="405" y="257" width="80" height="11" rx="4"/>
+          <rect class="chair" x="432" y="287" width="26" height="18" rx="6"/>
+          <rect class="desk" x="525" y="257" width="80" height="11" rx="4"/>
+          <rect class="desk" x="45" y="333" width="80" height="11" rx="4"/>
+          <rect class="chair" x="72" y="363" width="26" height="18" rx="6"/>
+          <rect class="desk" x="165" y="333" width="80" height="11" rx="4"/>
+          <rect class="chair" x="192" y="363" width="26" height="18" rx="6"/>
+          <rect class="desk" x="285" y="333" width="80" height="11" rx="4"/>
+          <rect class="chair" x="312" y="363" width="26" height="18" rx="6"/>
+          <rect class="desk" x="405" y="333" width="80" height="11" rx="4"/>
+          <rect class="chair" x="432" y="363" width="26" height="18" rx="6"/>
+          <rect class="desk" x="525" y="333" width="80" height="11" rx="4"/>
+          <rect class="chair" x="552" y="363" width="26" height="18" rx="6"/>
+          <rect class="desk" x="45" y="409" width="80" height="11" rx="4"/>
+          <rect class="desk" x="165" y="409" width="80" height="11" rx="4"/>
+          <rect class="chair" x="192" y="439" width="26" height="18" rx="6"/>
+          <rect class="desk" x="285" y="409" width="80" height="11" rx="4"/>
+          <rect class="chair" x="312" y="439" width="26" height="18" rx="6"/>
+          <rect class="desk" x="405" y="409" width="80" height="11" rx="4"/>
+          <rect class="chair" x="432" y="439" width="26" height="18" rx="6"/>
+          <rect class="desk" x="525" y="409" width="80" height="11" rx="4"/>
           <!-- Sound paths are deliberately illustrative, not acoustic measurements. -->
-          <path id="voicePath" class="voice-path" d="M520 304 Q440 275 325 244"/>
-          <circle id="pathDot" class="path-dot" cx="325" cy="244" r="5"/>
-          <g id="professorSeat">
-            <circle cx="325" cy="137" r="25" fill="#dfe8e1" stroke="#bdcdc2" stroke-width="1.5"/>
-            <circle cx="325" cy="132" r="8" fill="#c98d6c"/>
-            <path d="M312 147 Q325 137 338 147 L341 159 H309Z" fill="#496b7c"/>
-          </g>
-          <!-- Listener: the central anchor for the voice paths -->
-          <g id="listener">
-            <circle cx="325" cy="244" r="34" fill="#dbe8ee" stroke="#9db8c5" stroke-width="2"/>
-            <circle cx="325" cy="237" r="10" fill="#c98d6c"/>
-            <path d="M308 254 Q325 241 342 254 L346 270 H304Z" fill="#426b84"/>
-            <text x="325" y="289" text-anchor="middle" font-size="10" font-weight="800" fill="#426b84">YOU</text>
-          </g>
-          <!-- Selectable classmates -->
-          <g class="seat" data-speaker="thirdCorner" tabindex="0" role="button" aria-label="Select classmate in third row, right corner">
-            <circle class="sound-ring" id="ring-thirdCorner" cx="520" cy="304" r="25"/>
-            <circle class="sound-ring delay" cx="520" cy="304" r="25"/>
-            <rect class="seatbody" x="488" y="270" width="64" height="64" rx="16" fill="#fffefa" stroke="#d3dcd4" stroke-width="1.5"/>
-            <circle class="person" cx="520" cy="292" r="8" fill="#bd8568"/><path d="M507 310 Q520 299 533 310 L536 321 H504Z" fill="#6f9688"/>
-            <text class="seatname" x="520" y="349" text-anchor="middle">3RD ROW · RIGHT</text>
-          </g>
-          <g class="seat" data-speaker="fifthRight" tabindex="0" role="button" aria-label="Select classmate in fifth row, right corner">
-            <circle class="sound-ring" id="ring-fifthRight" cx="520" cy="423" r="25"/>
-            <circle class="sound-ring delay" cx="520" cy="423" r="25"/>
-            <rect class="seatbody" x="488" y="389" width="64" height="64" rx="16" fill="#fffefa" stroke="#d3dcd4" stroke-width="1.5"/>
-            <circle class="person" cx="520" cy="411" r="8" fill="#d5a17e"/><path d="M507 429 Q520 418 533 429 L536 440 H504Z" fill="#c08a68"/>
-            <text class="seatname" x="520" y="468" text-anchor="middle">5TH ROW · RIGHT</text>
-          </g>
-          <g class="seat" data-speaker="fifthLeft" tabindex="0" role="button" aria-label="Select classmate in fifth row, left corner">
-            <circle class="sound-ring" id="ring-fifthLeft" cx="130" cy="423" r="25"/>
-            <circle class="sound-ring delay" cx="130" cy="423" r="25"/>
-            <rect class="seatbody" x="98" y="389" width="64" height="64" rx="16" fill="#fffefa" stroke="#d3dcd4" stroke-width="1.5"/>
-            <circle class="person" cx="130" cy="411" r="8" fill="#d3b2a0"/><path d="M117 429 Q130 418 143 429 L146 440 H114Z" fill="#9b7e9b"/>
-            <text class="seatname" x="130" y="468" text-anchor="middle">5TH ROW · LEFT</text>
-          </g>
-          <g class="seat" data-speaker="thirdLeft" tabindex="0" role="button" aria-label="Select classmate in third row, left side">
-            <circle class="sound-ring" id="ring-thirdLeft" cx="130" cy="304" r="25"/>
-            <circle class="sound-ring delay" cx="130" cy="304" r="25"/>
-            <rect class="seatbody" x="98" y="270" width="64" height="64" rx="16" fill="#fffefa" stroke="#d3dcd4" stroke-width="1.5"/>
-            <circle class="person" cx="130" cy="292" r="8" fill="#c5a1c0"/><path d="M117 310 Q130 299 143 310 L146 321 H114Z" fill="#879b8b"/>
-            <text class="seatname" x="130" y="349" text-anchor="middle">3RD ROW · LEFT</text>
-          </g>
-        </svg>
+          <path id="voicePath" class="voice-path" d=""/>
+          <g id="listener"><rect x="299" y="195" width="52" height="42" rx="13" fill="#dbe8ee" stroke="#9db8c5" stroke-width="2"/><path d="M313 228 Q325 218 337 228 L339 235 H311 Z" fill="#426b84"/><circle cx="325" cy="213" r="7.5" fill="#4c4843"/><text x="359" y="220" text-anchor="start" font-size="10" font-weight="800" letter-spacing="1" fill="#426b84">YOU</text></g>
+          <circle id="pathDot" class="path-dot" cx="325" cy="237" r="5"/>
+          <g class="seat" data-speaker="thirdCorner" tabindex="0" role="button" aria-label="Select classmate in third row, right corner"><circle class="sound-ring" id="ring-thirdCorner" cx="565" cy="292" r="24"/><circle class="sound-ring delay" cx="565" cy="292" r="24"/><rect class="seatbody" x="539" y="271" width="52" height="42" rx="13" fill="#fffefa" stroke="#d3dcd4" stroke-width="1.5"/><path d="M553 304 Q565 294 577 304 L579 311 H551 Z" fill="#6f9688"/><circle class="person" cx="565" cy="289" r="7.5" fill="#4a4038"/><text class="seatname" x="565" y="327" text-anchor="middle">3RD ROW · RIGHT</text></g>
+          <g class="seat" data-speaker="fifthRight" tabindex="0" role="button" aria-label="Select classmate in fifth row, right corner"><circle class="sound-ring" id="ring-fifthRight" cx="565" cy="444" r="24"/><circle class="sound-ring delay" cx="565" cy="444" r="24"/><rect class="seatbody" x="539" y="423" width="52" height="42" rx="13" fill="#fffefa" stroke="#d3dcd4" stroke-width="1.5"/><path d="M553 456 Q565 446 577 456 L579 463 H551 Z" fill="#c08a68"/><circle class="person" cx="565" cy="441" r="7.5" fill="#7a5a3c"/><text class="seatname" x="565" y="479" text-anchor="middle">5TH ROW · RIGHT</text></g>
+          <g class="seat" data-speaker="fifthLeft" tabindex="0" role="button" aria-label="Select classmate in fifth row, left corner"><circle class="sound-ring" id="ring-fifthLeft" cx="85" cy="444" r="24"/><circle class="sound-ring delay" cx="85" cy="444" r="24"/><rect class="seatbody" x="59" y="423" width="52" height="42" rx="13" fill="#fffefa" stroke="#d3dcd4" stroke-width="1.5"/><path d="M73 456 Q85 446 97 456 L99 463 H71 Z" fill="#9b7e9b"/><circle class="person" cx="85" cy="441" r="7.5" fill="#2f2a26"/><text class="seatname" x="85" y="479" text-anchor="middle">5TH ROW · LEFT</text></g>
+          <g class="seat" data-speaker="thirdLeft" tabindex="0" role="button" aria-label="Select classmate in third row, left side"><circle class="sound-ring" id="ring-thirdLeft" cx="205" cy="292" r="24"/><circle class="sound-ring delay" cx="205" cy="292" r="24"/><rect class="seatbody" x="179" y="271" width="52" height="42" rx="13" fill="#fffefa" stroke="#d3dcd4" stroke-width="1.5"/><path d="M193 304 Q205 294 217 304 L219 311 H191 Z" fill="#879b8b"/><circle class="person" cx="205" cy="289" r="7.5" fill="#5b514a"/><text class="seatname" x="205" y="327" text-anchor="middle">3RD ROW · LEFT</text></g>
+          </svg>
       </div>
     </div>
     <div class="legend">
@@ -297,15 +305,17 @@ body.paused .pause-overlay{display:grid}
 (() => {
   const $ = id => document.getElementById(id);
   const profiles = {
-    thirdCorner:{name:'Third row · right corner',text:'I think we should look at the customer experience first, because that changes how we evaluate the whole product.',volume:.10,rate:1.02,pitch:1.22,loc:{x:520,y:304},kind:'quiet',effort:4,effortTitle:'I have to work harder to follow',effortCopy:'I lean in mentally, focus on each word, and try to fill in what I miss so I don’t lose the thread.' ,desc:'A quiet voice from just behind you, to the right.'},
-    fifthRight:{name:'Fifth row · right corner',text:'I agree with that point, but I would add that the cost of implementation matters just as much.',volume:.035,rate:.91,pitch:.75,loc:{x:520,y:423},kind:'veryquiet',effort:5,effortTitle:'Following takes a lot more effort',effortCopy:'The voice is faint, so I have to concentrate intensely and piece together the sentence. It’s easy to lose a few words — and the point.' ,desc:'A softer voice from farther behind you, to the right.'},
-    fifthLeft:{name:'Fifth row · left corner',text:'I see it differently. If we start with the user problem, I think the recommendation becomes much clearer.',volume:.62,rate:1.08,pitch:1.42,loc:{x:130,y:423},kind:'loud',effort:1,effortTitle:'This voice is easier to catch',effortCopy:'Even from farther away, a stronger voice is easier for me to notice and follow. The distance matters — but it isn’t the whole story.' ,desc:'A louder voice from farther behind you, to the left.'},
-    thirdLeft:{name:'Third row · left side',text:'Could we also consider what happens after launch? Adoption might be a bigger challenge than building the product.',volume:.085,rate:.96,pitch:1.05,loc:{x:130,y:304},kind:'quiet',effort:4,effortTitle:'I have to work harder to follow',effortCopy:'I try to hold my attention on the speaker and reconstruct the words I don’t catch. Meanwhile, the conversation keeps moving.' ,desc:'A quiet voice from behind you, to the left.'}
+    thirdCorner:{name:'Third row · right corner',text:'I think we should look at the customer experience first, because that changes how we evaluate the whole product.',volume:.10,rate:1.02,pitch:1.22,loc:{x:565,y:271},kind:'quiet',effort:4,effortTitle:'I have to work harder to follow',effortCopy:'I lean in mentally, focus on each word, and try to fill in what I miss so I don’t lose the thread.' ,desc:'A quiet voice from just behind you, to the right.'},
+    fifthRight:{name:'Fifth row · right corner',text:'I agree with that point, but I would add that the cost of implementation matters just as much.',volume:.035,rate:.91,pitch:.75,loc:{x:565,y:423},kind:'veryquiet',effort:5,effortTitle:'Following takes a lot more effort',effortCopy:'The voice is faint, so I have to concentrate intensely and piece together the sentence. It’s easy to lose a few words — and the point.' ,desc:'A softer voice from farther behind you, to the right.'},
+    fifthLeft:{name:'Fifth row · left corner',text:'I see it differently. If we start with the user problem, I think the recommendation becomes much clearer.',volume:.62,rate:1.08,pitch:1.42,loc:{x:85,y:423},kind:'loud',effort:1,effortTitle:'This voice is easier to catch',effortCopy:'Even from farther away, a stronger voice is easier for me to notice and follow. The distance matters — but it isn’t the whole story.' ,desc:'A louder voice from farther behind you, to the left.'},
+    thirdLeft:{name:'Third row · left side',text:'Could we also consider what happens after launch? Adoption might be a bigger challenge than building the product.',volume:.085,rate:.96,pitch:1.05,loc:{x:205,y:271},kind:'quiet',effort:4,effortTitle:'I have to work harder to follow',effortCopy:'I try to hold my attention on the speaker and reconstruct the words I don’t catch. Meanwhile, the conversation keeps moving.' ,desc:'A quiet voice from behind you, to the left.'}
   };
   let selected=null, paused=false, playing=false, wasPlaying=false, currentUtterance=null;
   const heard=new Set();
   const supportsSpeech = 'speechSynthesis' in window;
   const voicePath=$('voicePath'), pathDot=$('pathDot');
+  // Voice paths run from the speaker's seat to the bottom edge of your seat (second row, centre).
+  const YOU={x:325,y:237};
   // Remember the opening text so "Start over" can put the scene back exactly as it began.
   const RESET_IDS=['statusText','nowTitle','nowSub','caption','effortTitle','effortCopy','sceneFoot'];
   const initial=Object.fromEntries(RESET_IDS.map(id=>[id,$(id).innerHTML]));
@@ -339,12 +349,12 @@ body.paused .pause-overlay{display:grid}
     document.querySelectorAll(`[data-speaker="${key}"]`).forEach(el=>el.classList.add(el.classList.contains('seat')?'selected':'active'));
     document.querySelectorAll(`#ring-${key}, #ring-${key} ~ .sound-ring`).forEach(el=>el.classList.add('active'));
     // The curve connects the selected voice to the listener; its style cues relative audibility.
-    const mx=(p.loc.x+325)/2, my=(p.loc.y+244)/2-25;
-    voicePath.setAttribute('d',`M ${p.loc.x} ${p.loc.y} Q ${mx} ${my} 325 244`);
+    const mx=(p.loc.x+YOU.x)/2, my=(p.loc.y+YOU.y)/2-25;
+    voicePath.setAttribute('d',`M ${p.loc.x} ${p.loc.y} Q ${mx} ${my} ${YOU.x} ${YOU.y}`);
     voicePath.classList.add('visible');
     if(p.kind==='quiet'||p.kind==='veryquiet') voicePath.classList.add('quiet');
     if(p.kind==='loud') voicePath.classList.add('loud');
-    pathDot.setAttribute('cx',325);pathDot.setAttribute('cy',244);pathDot.classList.add('visible');
+    pathDot.setAttribute('cx',YOU.x);pathDot.setAttribute('cy',YOU.y);pathDot.classList.add('visible');
     $('statusDot').classList.add('on');
     $('statusText').textContent='CLASSMATE SPEAKING';
     $('nowTitle').textContent=p.name;
