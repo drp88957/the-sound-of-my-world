@@ -10,12 +10,13 @@
 
     :root {
       --paper: #f7f5ef;
+      --card: #fffefa;
       --ink: #191918;
       --muted: #73716c;
       --line: #ddd9d0;
-      --accent: #6d78dc;
       --room: #17191c;
-      --slow: 1;              /* rises as the meeting overloads */
+      --orange: #d77d51;
+      --blue: #426b84;
     }
 
     html, body { margin: 0; min-height: 100vh; }
@@ -27,24 +28,14 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    button { font: inherit; }
-
     .app {
       width: min(1100px, calc(100% - 32px));
       margin: 40px auto;
-    }
-
-    .stage {
-      position: relative;
+      background: var(--paper);
       border: 1px solid var(--line);
       border-radius: 28px;
-      overflow: hidden;
-      background: var(--paper);
-      min-height: 640px;
+      padding: 64px 52px 44px;
     }
-
-    .screen { display: none; }
-    .screen.on { display: block; }
 
     .eyebrow {
       font-size: 11px;
@@ -54,1683 +45,274 @@
       margin-bottom: 16px;
     }
 
-    /* =========================================
-       1. CHOICE SCREEN
-       ========================================= */
-
-    .choice-screen { padding: 64px 52px 52px; }
-
-    .choice-screen h1 {
+    h1 {
       font-family: Georgia, serif;
       font-weight: 400;
       font-size: clamp(42px, 6vw, 70px);
       line-height: 0.96;
       letter-spacing: -0.05em;
       margin: 0 0 20px;
-      max-width: 750px;
     }
 
     .intro {
       font-size: 18px;
       line-height: 1.55;
-      color: #5e5c57;
+      color: var(--muted);
       max-width: 620px;
-      margin: 0 0 38px;
+      margin: 0 0 44px;
     }
 
-    .choices {
+    .scenes {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
     }
 
-    .choice-card {
-      appearance: none;
-      text-align: left;
-      background: #fbfaf7;
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      padding: 24px;
-      min-height: 220px;
-      cursor: pointer;
+    .scene-card {
       display: flex;
       flex-direction: column;
-      color: var(--ink);
-      transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease, background .22s ease;
+      text-decoration: none;
+      color: inherit;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      overflow: hidden;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
     }
 
-    .choice-card:hover { transform: translateY(-3px); border-color: #aaa59b; }
-
-    .choice-card.selected {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(109, 120, 220, .12);
-      background: #fff;
+    .scene-card:hover, .scene-card:focus-visible {
+      transform: translateY(-3px);
+      border-color: #c9c5bb;
+      box-shadow: 0 14px 34px rgba(25, 25, 24, 0.08);
+      outline: none;
     }
 
-    .choice-card .tag {
+    .scene-card:focus-visible { outline: 3px solid #e4a17d; outline-offset: 3px; }
+
+    .art {
+      height: 200px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .copy { padding: 22px 24px 24px; display: flex; flex-direction: column; flex: 1; }
+
+    .tag {
       font-size: 11px;
-      letter-spacing: .14em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
     }
 
-    .choice-card h2 {
+    .scene-card h2 {
       font-family: Georgia, serif;
       font-weight: 400;
-      font-size: 25px;
+      font-size: 32px;
+      letter-spacing: -0.03em;
       margin: 0 0 10px;
     }
 
-    .choice-card p {
-      font-size: 14px;
-      line-height: 1.5;
-      color: var(--muted);
-      margin: 0;
-    }
+    .scene-card p { margin: 0 0 22px; color: var(--muted); line-height: 1.55; font-size: 15px; }
 
-    .choice-card .choose {
-      margin-top: auto;
-      padding-top: 22px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #555;
-    }
+    .enter { margin-top: auto; font-size: 14px; font-weight: 600; }
+    .scene-card:hover .enter { text-decoration: underline; }
 
-    .start-row {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      margin-top: 18px;
-    }
+    /* ---- Meeting art: a dark call grid, one tile speaking ---- */
 
-    .start-button {
-      flex: 1;
-      border: none;
-      border-radius: 999px;
-      padding: 16px;
-      background: var(--ink);
-      color: #fff;
-      font-size: 15px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: opacity .2s ease, transform .2s ease;
-    }
+    .meeting .art { background: var(--room); padding: 26px 30px; }
+    .meeting .tag { color: #8a6f3e; }
 
-    .start-button:hover:not(:disabled) { transform: translateY(-1px); }
-    .start-button:disabled { opacity: .35; cursor: not-allowed; }
-
-    .sound-hint { font-size: 12px; color: var(--muted); white-space: nowrap; }
-
-    /* =========================================
-       2. MEETING SCREEN
-       ========================================= */
-
-    .meeting-screen { background: #f4f2ed; }
-
-    .topbar {
-      height: 58px;
-      padding: 0 22px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid #d9d6ce;
-      color: #62605a;
-      font-size: 13px;
-    }
-
-    .topbar-left, .topbar-right { display: flex; align-items: center; gap: 10px; }
-
-    .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #d9655e; }
-
-    .clock { font-variant-numeric: tabular-nums; }
-
-    .sound-toggle {
-      border: 1px solid #d0ccc2;
-      background: transparent;
-      border-radius: 999px;
-      padding: 5px 12px;
-      font-size: 12px;
-      color: #62605a;
-      cursor: pointer;
-    }
-
-    .meeting-body {
-      position: relative;
-      background: var(--room);
-      padding: 22px;
-      min-height: 520px;
-      overflow: hidden;
-    }
-
-    .particles { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
-
-    .particle {
-      position: absolute;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, .22);
-      animation: float var(--dur) ease-in-out infinite alternate;
-    }
-
-    @keyframes float {
-      to { transform: translate(var(--fx), var(--fy)); }
-    }
-
-    .people-grid {
-      position: relative;
-      z-index: 2;
+    .call-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 10px;
+      gap: 8px;
+      height: 100%;
     }
 
-    /* ---------- tiles ---------- */
-
-    .tile {
+    .call-grid span {
+      border-radius: 8px;
+      background: #2a2d31;
       position: relative;
-      aspect-ratio: 4 / 3;
-      border-radius: 14px;
-      overflow: hidden;
-      background: var(--wall, #2a2d31);
-      border: 1px solid rgba(255, 255, 255, .06);
-      opacity: 0;
-      transform: scale(.96);
-      transition:
-        opacity calc(.7s * var(--slow)) ease,
-        transform calc(.7s * var(--slow)) ease,
-        box-shadow calc(.35s * var(--slow)) ease;
     }
 
-    .tile.joined { opacity: 1; transform: none; }
-    .tile.gone { opacity: 0; transform: scale(.97); }
-
-    .tile.speaking { box-shadow: inset 0 0 0 2px #8fd49a; }
-
-    .tile .name {
+    /* A tiny head and shoulders in every tile. */
+    .call-grid span::before {
+      content: "";
       position: absolute;
-      left: 8px;
-      bottom: 7px;
-      z-index: 5;
-      font-size: 10px;
-      color: #fff;
-      background: rgba(0, 0, 0, .38);
-      padding: 2px 6px;
-      border-radius: 5px;
-    }
-
-    .tile.you { border-color: rgba(140, 150, 255, .75); box-shadow: 0 0 0 2px rgba(109, 120, 220, .3); }
-    .tile.you.asked { animation: asked 1.1s ease-in-out infinite; }
-
-    @keyframes asked {
-      50% { box-shadow: 0 0 0 4px rgba(140, 150, 255, .75); }
-    }
-
-    /* ---------- CSS people ---------- */
-
-    .figure {
-      position: absolute;
-      left: 50%;
-      bottom: 0;
-      width: 58%;
-      height: 92%;
+      left: 50%; top: 26%;
+      width: 26%; aspect-ratio: 1;
+      border-radius: 50%;
+      background: var(--skin, #c99272);
       transform: translateX(-50%);
     }
 
-    .figure .shirt {
+    .call-grid span::after {
+      content: "";
       position: absolute;
-      left: 50%;
-      bottom: -8%;
-      width: 100%;
-      height: 36%;
+      left: 50%; bottom: 0;
+      width: 56%; height: 26%;
+      border-radius: 50% 50% 0 0;
+      background: var(--shirt, #5a5f66);
       transform: translateX(-50%);
-      background: var(--shirt);
-      border-radius: 48% 48% 0 0 / 75% 75% 0 0;
-      z-index: 2;
     }
 
-    .figure .neck {
-      position: absolute;
-      left: 50%;
-      bottom: 22%;
-      width: 18%;
-      height: 14%;
-      transform: translateX(-50%);
-      background: var(--skin);
-      filter: brightness(.9);
-      z-index: 1;
-    }
-
-    .figure .hair-back {
-      position: absolute;
-      left: 50%;
-      bottom: 18%;
-      width: 64%;
-      height: 54%;
-      transform: translateX(-50%);
-      background: var(--hair);
-      border-radius: 46% 46% 22% 22%;
-      z-index: 0;
-    }
-
-    .figure .head {
-      position: absolute;
-      left: 50%;
-      bottom: 31%;
-      width: 50%;
-      aspect-ratio: .84;
-      transform: translateX(-50%);
-      background: var(--skin);
-      border-radius: 46% 46% 44% 44% / 50% 50% 50% 50%;
-      z-index: 3;
-    }
-
-    .head .hair {
-      position: absolute;
-      inset: -9% -6% 56% -6%;
-      background: var(--hair);
-      border-radius: 50% 50% 28% 28% / 80% 80% 25% 25%;
-      z-index: 2;
-    }
-
-    .head .eyes {
-      position: absolute;
-      top: 46%;
-      left: 20%;
-      right: 20%;
-      height: 9%;
-      background:
-        radial-gradient(circle at 16% 50%, #1d1a18 0 2px, transparent 2.6px),
-        radial-gradient(circle at 84% 50%, #1d1a18 0 2px, transparent 2.6px);
-      z-index: 3;
-    }
-
-    .head .mouth {
-      position: absolute;
-      left: 50%;
-      bottom: 19%;
-      width: 24%;
-      height: 4%;
-      transform: translateX(-50%);
-      background: #5b2f2a;
-      border-radius: 0 0 50% 50% / 0 0 100% 100%;
-      z-index: 4;
-    }
-
-    .tile.speaking .mouth { animation: talk .2s ease-in-out infinite alternate; }
+    .call-grid span.talk { animation: talk 1.6s ease-in-out infinite; }
+    .call-grid span.talk:nth-child(7)  { animation-delay: .5s; }
+    .call-grid span.talk:nth-child(12) { animation-delay: 1s; }
 
     @keyframes talk {
-      to { height: 11%; border-radius: 45%; }
+      0%, 100% { box-shadow: 0 0 0 0 rgba(109, 120, 220, 0); }
+      50%      { box-shadow: 0 0 0 3px #6d78dc; }
     }
 
-    .head .beard {
+    /* ---- Classroom art: a board, a professor, and sound ripples ---- */
+
+    .classroom .art { background: #edf1ed; }
+    .classroom .tag { color: var(--orange); }
+
+    .board {
       position: absolute;
-      left: 8%;
-      right: 8%;
-      bottom: -4%;
-      height: 40%;
-      background: var(--hair);
-      border-radius: 0 0 50% 50% / 0 0 85% 85%;
-      z-index: 3;
+      left: 8%; right: 8%; top: 18px;
+      height: 74px;
+      border-radius: 6px;
+      background: #d8e4df;
     }
 
-    .head .glasses {
-      position: absolute;
-      top: 40%;
-      left: 10%;
-      right: 10%;
-      height: 18%;
-      background: linear-gradient(#1b1b1b, #1b1b1b) center / 18% 1.5px no-repeat;
-      z-index: 5;
-    }
-
-    .head .glasses::before,
-    .head .glasses::after {
+    .board::before {
       content: "";
       position: absolute;
-      top: 0;
-      width: 40%;
-      height: 100%;
-      border: 1.5px solid #1b1b1b;
-      border-radius: 40%;
+      left: 16px; top: 18px;
+      width: 40%; height: 4px;
+      border-radius: 4px;
+      background: #c4d1ca;
+      box-shadow: 0 12px 0 #c4d1ca, 0 24px 0 #c4d1ca;
     }
 
-    .head .glasses::before { left: 0; }
-    .head .glasses::after { right: 0; }
-
-    .head .phones {
+    .prof {
       position: absolute;
-      inset: -16% -14% 34% -14%;
-      border: 3px solid #2c2c2e;
-      border-bottom: none;
-      border-radius: 50% 50% 0 0 / 70% 70% 0 0;
-      z-index: 6;
-    }
-
-    .head .phones::before,
-    .head .phones::after {
-      content: "";
-      position: absolute;
-      bottom: -30%;
-      width: 22%;
-      height: 42%;
-      background: #3a3a3d;
-      border-radius: 40%;
-    }
-
-    .head .phones::before { left: -14%; }
-    .head .phones::after { right: -14%; }
-
-    /* hair styles */
-    .style-curly .head .hair { inset: -16% -14% 50% -14%; border-radius: 50%; }
-    .style-afro .head .hair { inset: -30% -26% 44% -26%; border-radius: 50%; }
-    .style-bun .head .hair::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      top: -42%;
-      width: 42%;
-      aspect-ratio: 1;
-      transform: translateX(-50%);
+      left: 50%; top: 48px;
+      width: 30px; height: 34px;
       border-radius: 50%;
-      background: var(--hair);
-    }
-    .style-bald .head .hair { inset: 18% -4% 44% -4%; border-radius: 30%; opacity: .55; }
-    .style-wrap .hair-back { width: 74%; height: 64%; bottom: 14%; border-radius: 50% 50% 34% 34%; }
-    .style-wrap .head .hair { inset: -12% -10% 62% -10%; border-radius: 50% 50% 20% 20% / 90% 90% 20% 20%; }
-
-    /* the visitor: a quiet silhouette */
-    .tile.you .figure { opacity: .9; }
-    .tile.you .eyes, .tile.you .mouth { display: none; }
-
-    /* ---------- floating speech ---------- */
-
-    .frag {
-      position: absolute;
-      z-index: 10;
-      max-width: 230px;
-      background: #fff;
-      color: #222;
-      border-radius: 15px 15px 15px 4px;
-      padding: 9px 12px;
-      font-size: 13px;
-      line-height: 1.35;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
-      pointer-events: none;
-      opacity: 0;
-      animation: drift var(--life) ease forwards;
-    }
-
-    .frag .who {
-      display: block;
-      font-size: 10px;
-      color: #8a877f;
-      margin-bottom: 2px;
-    }
-
-    @keyframes drift {
-      0%   { opacity: 0; transform: translate(0, 10px); }
-      10%  { opacity: 1; transform: translate(0, 0); }
-      72%  { opacity: 1; }
-      100% { opacity: 0; transform: translate(var(--dx), -34px); }
-    }
-
-    .frag .lost { filter: blur(2.6px); opacity: .35; }
-    .frag .acc { display: inline-block; letter-spacing: .05em; filter: blur(.35px); }
-
-    .frag.ghost { padding: 9px 12px 11px; }
-
-    .frag .dots i {
-      display: inline-block;
-      width: 5px;
-      height: 5px;
-      margin-right: 4px;
-      border-radius: 50%;
-      background: #b5b1a8;
-      animation: dot .9s ease-in-out infinite;
-    }
-
-    .frag .dots i:nth-child(2) { animation-delay: .15s; }
-    .frag .dots i:nth-child(3) { animation-delay: .3s; }
-
-    @keyframes dot { 50% { transform: translateY(-3px); background: #77736b; } }
-
-    .frag.ask {
-      animation: none;
-      opacity: 1;
-      background: #fff;
-      font-size: 15px;
-      box-shadow: 0 0 0 3px rgba(140, 150, 255, .5), 0 10px 30px rgba(0, 0, 0, .35);
-    }
-
-    /* ---------- captions ---------- */
-
-    .captions {
-      position: absolute;
-      z-index: 20;
-      left: 50%;
-      bottom: 16px;
+      background: #c98d6c;
       transform: translateX(-50%);
-      width: min(92%, 660px);
-      background: rgba(8, 9, 10, .94);
-      border: 1px solid rgba(255, 255, 255, .2);
-      border-radius: 13px;
-      color: #fff;
-      padding: 12px 16px 10px;
-      font-size: 14px;
-      line-height: 1.45;
-      display: none;
     }
 
-    .captions.on { display: block; }
-
-    .captions .line { min-height: 20px; }
-
-    .captions .cc-live { display: none; }
-    .captions.live .cc-fixed { display: none; }
-    .captions.live .cc-live { display: block; min-height: 40px; }
-
-    /* a word the caption engine just rewrote */
-    .captions .w.revised { animation: revised .9s ease; }
-    @keyframes revised {
-      0% { background: rgba(255, 255, 255, .22); }
-      100% { background: transparent; }
-    }
-    .captions .line .who { color: #9c9a95; margin-right: 6px; }
-    .captions .line.old { opacity: .45; }
-
-    .captions .note {
-      display: block;
-      margin-top: 4px;
-      font-size: 10px;
-      color: #8d8b86;
-      letter-spacing: .04em;
-    }
-
-    /* ---------- bottom status bar ---------- */
-
-    .statusbar {
-      min-height: 64px;
-      padding: 10px 22px;
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      gap: 16px;
-      border-top: 1px solid #d7d3ca;
-      color: #6c6962;
-      font-size: 12px;
-    }
-
-    .status-text { transition: opacity .4s ease; }
-
-    .status-left { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
-
-    .mode-chip {
-      font-size: 10px;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      color: #fff;
-      background: var(--ink);
-      border-radius: 999px;
-      padding: 3px 9px;
-    }
-
-    .leave-button {
-      border: none;
-      background: #d9655e;
-      color: #fff;
-      border-radius: 999px;
-      padding: 6px 14px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background .2s ease;
-    }
-
-    .leave-button:hover { background: #c4534c; }
-
-    .pipeline { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: center; }
-
-    .pipeline .step {
-      padding: 4px 9px;
-      border-radius: 999px;
-      border: 1px solid #d3cfc5;
-      background: #faf9f5;
-      color: #4e4c47;
-      transition: background calc(.5s * var(--slow)) ease;
-    }
-
-    .pipeline .arrow { color: #b3afa6; }
-
-    .pipeline.busy .step { animation: busy calc(1.4s * var(--slow)) ease-in-out infinite; }
-    .pipeline.busy .step:nth-child(3) { animation-delay: .2s; }
-    .pipeline.busy .step:nth-child(5) { animation-delay: .4s; }
-    .pipeline.busy .step:nth-child(7) { animation-delay: .6s; }
-
-    @keyframes busy { 50% { background: #ebe7dd; } }
-
-    .pipeline .unknown { border-style: dashed; animation: flicker 1.3s steps(2) infinite; }
-    @keyframes flicker { 50% { opacity: .35; } }
-
-    .meter { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
-
-    .meter-label { font-size: 10px; letter-spacing: .16em; }
-
-    .bars { display: flex; align-items: flex-end; gap: 2px; height: 22px; }
-
-    .bars span {
-      width: 4px;
-      height: 6%;
-      background: #2a2a2a;
-      border-radius: 1px;
-      transition: height .12s ease;
-    }
-
-    /* =========================================
-       3. ENDING
-       ========================================= */
-
-    .ending-screen {
-      position: relative;
-      min-height: 640px;
-      padding: 80px 52px;
-      background: var(--paper);
-    }
-
-    .beat {
+    .prof::after {
+      content: "";
       position: absolute;
-      inset: 0;
-      padding: 0 52px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: flex-start;
-      max-width: 760px;
-      opacity: 0;
-      transition: opacity 1.2s ease;
-      pointer-events: none;
+      left: -14px; top: 38px;
+      width: 58px; height: 48px;
+      border-radius: 40% 40% 6px 6px;
+      background: #496b7c;
     }
 
-    .beat.on { opacity: 1; pointer-events: auto; }
-
-    .beat .ln { opacity: 0; transform: translateY(6px); transition: opacity 1.1s ease, transform 1.1s ease; }
-    .beat .ln.on { opacity: 1; transform: none; }
-
-    .serif-xl {
-      font-family: Georgia, serif;
-      font-weight: 400;
-      font-size: clamp(40px, 6vw, 68px);
-      line-height: 1;
-      letter-spacing: -0.04em;
-      margin: 0;
-    }
-
-    .serif-m {
-      font-family: Georgia, serif;
-      font-size: clamp(22px, 3vw, 30px);
-      line-height: 1.35;
-      color: #3c3a36;
-      margin: 18px 0 0;
-    }
-
-    .quiet { color: var(--muted); font-size: 16px; line-height: 1.6; margin: 26px 0 0; }
-
-    .end-actions { display: flex; gap: 10px; margin-top: 34px; flex-wrap: wrap; }
-
-    .ghost-button {
-      border: 1px solid #c9c5bb;
-      background: transparent;
-      color: var(--ink);
-      border-radius: 999px;
-      padding: 12px 20px;
-      cursor: pointer;
-      transition: background .2s ease, color .2s ease;
-    }
-
-    .ghost-button:hover { background: var(--ink); color: #fff; }
-
-    .afterglow {
+    .desk {
       position: absolute;
-      right: 28px;
-      bottom: 24px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--muted);
-      font-size: 10px;
-      letter-spacing: .16em;
-      text-transform: uppercase;
-      transition: opacity 1.5s ease;
+      bottom: 22px;
+      width: 30%; height: 14px;
+      border-radius: 3px;
+      background: #c9b59b;
     }
 
-    /* =========================================
-       MOBILE + MOTION
-       ========================================= */
+    .desk.l { left: 5%; }
+    .desk.r { right: 5%; }
+
+    .ripple {
+      position: absolute;
+      width: 34px; height: 34px;
+      border: 3px solid var(--orange);
+      border-color: transparent var(--orange) transparent transparent;
+      border-radius: 50%;
+      animation: ripple 1.4s ease-in-out infinite;
+    }
+
+    .ripple.voice { left: calc(50% + 14px); top: 56px; border-right-color: var(--blue); }
+    .ripple.a { left: 22%; bottom: 40px; animation-delay: .3s; }
+    .ripple.b { right: 12%; bottom: 40px; animation-delay: .7s; }
+    .ripple.c { left: 47%; bottom: 30px; animation-delay: 1s; }
+
+    @keyframes ripple {
+      0%, 100% { opacity: .25; transform: scale(.85); }
+      50%      { opacity: 1;   transform: scale(1.1); }
+    }
+
+    footer { margin-top: 36px; font-size: 12px; color: #929890; line-height: 1.6; }
 
     @media (max-width: 760px) {
-      .app { width: calc(100% - 20px); margin: 20px auto; }
-      .choice-screen { padding: 40px 22px 28px; }
-      .choices { grid-template-columns: 1fr; }
-      .choice-card { min-height: 150px; }
-      .start-row { flex-direction: column; align-items: stretch; }
-      .sound-hint { text-align: center; }
-      .people-grid { grid-template-columns: repeat(3, 1fr); }
-      .meeting-body { padding: 12px; min-height: 620px; }
-      .frag { max-width: 170px; font-size: 11px; }
-      .statusbar { grid-template-columns: 1fr; text-align: center; }
-      .meter { justify-content: center; }
-      .status-left { align-items: center; }
-      .beat { padding: 0 24px; }
+      .app { width: calc(100% - 20px); margin: 20px auto; padding: 40px 22px 28px; }
+      .scenes { grid-template-columns: 1fr; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .frag { animation-name: fadeOnly; }
-      @keyframes fadeOnly { 0% { opacity: 0; } 10%, 72% { opacity: 1; } 100% { opacity: 0; } }
-      .particle, .pipeline .step, .unknown, .tile.you.asked { animation: none !important; }
-      .tile.speaking .mouth { animation: none; height: 8%; }
+      .call-grid span.talk, .ripple { animation: none; }
+      .scene-card { transition: none; }
     }
   </style>
 </head>
 
 <body>
 <main class="app">
-  <div class="stage" id="stage">
+  <div class="eyebrow">An interactive listening experience</div>
+  <h1>The Sound of My World</h1>
+  <p class="intro">
+    Two ordinary places: a team call and a classroom. Step into each one and
+    try to keep up with what you need to hear.
+  </p>
 
-    <!-- ============ 1. CHOOSE ============ -->
-    <section class="screen choice-screen on" id="choiceScreen">
-      <div class="eyebrow">The Sound of My World</div>
-      <h1>How would you follow this meeting?</h1>
-      <p class="intro">
-        For the next 30 seconds, you'll join an ordinary 30-minute team call with
-        15 people. Pick the way you'd normally keep up. Then try to keep up.
-      </p>
-
-      <div class="choices">
-        <button type="button" class="choice-card" data-mode="listen">
-          <span class="tag">Strategy one</span>
-          <h2>Just listen</h2>
-          <p>I try to catch everything.</p>
-          <span class="choose">Choose this →</span>
-        </button>
-
-        <button type="button" class="choice-card" data-mode="captions">
-          <span class="tag">Strategy two</span>
-          <h2>Read the captions</h2>
-          <p>I let the text fill in the gaps.</p>
-          <span class="choose">Choose this →</span>
-        </button>
-
-        <button type="button" class="choice-card" data-mode="both">
-          <span class="tag">Strategy three</span>
-          <h2>Both</h2>
-          <p>I listen and read at the same time.</p>
-          <span class="choose">Choose this →</span>
-        </button>
-      </div>
-
-      <div class="start-row">
-        <button type="button" class="start-button" id="startButton" disabled>
-          Choose how to follow the meeting
-        </button>
-        <span class="sound-hint">Best with sound on</span>
-      </div>
-    </section>
-
-    <!-- ============ 2. MEETING ============ -->
-    <section class="screen meeting-screen" id="meetingScreen" aria-label="Simulated meeting">
-      <div class="topbar">
-        <div class="topbar-left">
-          <span class="live-dot"></span>
-          <span>Weekly team sync · 15 participants</span>
-        </div>
-        <div class="topbar-right">
-          <span class="clock" id="clock">00:00 / 30:00</span>
-          <button type="button" class="sound-toggle" id="soundToggle">Sound on</button>
-          <button type="button" class="leave-button" id="leaveButton" title="Leave the simulation (Esc)">Leave</button>
+  <div class="scenes">
+    <a class="scene-card meeting" href="meeting.html">
+      <div class="art" aria-hidden="true">
+        <div class="call-grid">
+          <span style="--skin:#e9c2a6;--shirt:#4c6a92"></span>
+          <span class="talk" style="--skin:#c68e68;--shirt:#3d3d3d"></span>
+          <span style="--skin:#a8754f;--shirt:#b35a4a"></span>
+          <span style="--skin:#f1d3bf;--shirt:#2f5d50"></span>
+          <span style="--skin:#d9a07d;--shirt:#7a4b8c"></span>
+          <span style="--skin:#f0cdb4;--shirt:#2d3b55"></span>
+          <span class="talk" style="--skin:#b98263;--shirt:#5d7385"></span>
+          <span style="--skin:#e8c9a4;--shirt:#8a8a86"></span>
+          <span style="--skin:#8a5a3c;--shirt:#c49a3a"></span>
+          <span style="--skin:#f3dcc8;--shirt:#5b7f8a"></span>
+          <span style="--skin:#9a6646;--shirt:#3e5a3a"></span>
+          <span class="talk" style="--skin:#5c3a26;--shirt:#a64d6b"></span>
+          <span style="--skin:#e2b48f;--shirt:#5a5f66"></span>
+          <span style="--skin:#c99272;--shirt:#2c6e8f"></span>
+          <span style="--skin:#9a9590;--shirt:#6f6a65"></span>
         </div>
       </div>
-
-      <div class="meeting-body" id="meetingBody">
-        <div class="particles" id="particles"></div>
-        <div class="people-grid" id="peopleGrid"></div>
-        <div class="captions" id="captions" aria-live="off">
-          <div class="cc-fixed">
-            <div class="line"></div>
-            <div class="line"></div>
-          </div>
-          <div class="cc-live" id="ccLive"></div>
-          <span class="note" id="captionNote">Live captions</span>
-        </div>
+      <div class="copy">
+        <span class="tag">Scene 01 · The meeting</span>
+        <h2>How would you follow this meeting?</h2>
+        <p>A 30-minute team call with 15 people, compressed into 30 seconds. Voices overlap, and the captions lag and get words wrong.</p>
+        <span class="enter">Join the call →</span>
       </div>
+    </a>
 
-      <div class="statusbar">
-        <div class="status-left">
-          <span class="mode-chip" id="modeChip"></span>
-          <span class="status-text" id="status">Waiting for others to join…</span>
-        </div>
-        <div class="pipeline" id="pipeline"></div>
-        <div class="meter">
-          <span class="meter-label">Processing</span>
-          <div class="bars" id="bars"></div>
-        </div>
+    <a class="scene-card classroom" href="classroom.html">
+      <div class="art" aria-hidden="true">
+        <div class="board"></div>
+        <div class="prof"></div>
+        <span class="ripple voice"></span>
+        <div class="desk l"></div>
+        <div class="desk r"></div>
+        <span class="ripple a"></span>
+        <span class="ripple b"></span>
+        <span class="ripple c"></span>
       </div>
-    </section>
-
-    <!-- ============ 3. SILENCE ============ -->
-    <section class="screen ending-screen" id="endingScreen">
-      <div class="beat" id="beatA">
-        <p class="serif-xl ln">30 minutes later.</p>
+      <div class="copy">
+        <span class="tag">Scene 02 · The classroom</span>
+        <h2>All I want to hear is the professor.</h2>
+        <p>Turn the lecture up, and the chair scraping, snack wrapper, and turning pages get louder too.</p>
+        <span class="enter">Enter the classroom →</span>
       </div>
-
-      <div class="beat" id="beatB">
-        <div class="eyebrow ln">Meeting ended</div>
-        <p class="serif-xl ln">Everyone else leaves the call.</p>
-        <p class="serif-m ln">Your brain doesn't immediately leave with them.</p>
-      </div>
-
-      <div class="beat" id="beatC">
-        <p class="serif-xl ln">For me, listening isn't always passive.</p>
-        <p class="serif-xl ln" style="margin-top: 10px; color: #8a6f3e;">Sometimes, it's work.</p>
-        <p class="quiet ln" id="finalLine">This is what “just listen” can feel like.</p>
-        <div class="end-actions ln">
-          <button type="button" class="ghost-button" id="againButton">Experience it again</button>
-          <button type="button" class="ghost-button" id="otherButton">Try another way</button>
-        </div>
-      </div>
-
-      <div class="afterglow" id="afterglow">
-        <span>Still processing</span>
-        <div class="bars" id="afterBars"></div>
-      </div>
-    </section>
-
+    </a>
   </div>
+
+  <footer>
+    Personal perspective, expressed through illustrative prototypes. Not a diagnostic tool or an accurate simulation of any hearing device.
+    Each scene can be paused at any time and has a way back here.
+  </footer>
 </main>
-
-<!-- Real voice clips (optional). Without this file the page falls back to a murmur. -->
-<script src="voices.js"></script>
-
-<script>
-  /* =========================================================
-     PEOPLE (all drawn in CSS)
-     ========================================================= */
-
-  const PEOPLE = [
-    { name: "Sarah",  skin: "#e9c2a6", hair: "#6b4a2e", shirt: "#4c6a92", style: "long",  wall: "#2b2e33" },
-    { name: "Daniel", skin: "#c68e68", hair: "#2a1f1a", shirt: "#3d3d3d", style: "short", beard: true, glasses: true, wall: "#2e2b29" },
-    { name: "Priya",  skin: "#a8754f", hair: "#1c1412", shirt: "#b35a4a", style: "long",  wall: "#272b2f" },
-    { name: "Alex",   skin: "#f1d3bf", hair: "#c9a26a", shirt: "#2f5d50", style: "short", phones: true, wall: "#2a2d31" },
-    { name: "Maria",  skin: "#d9a07d", hair: "#3a2418", shirt: "#7a4b8c", style: "curly", wall: "#302c2c" },
-    { name: "James",  skin: "#f0cdb4", hair: "#b9b4ad", shirt: "#2d3b55", style: "bald",  beard: true, glasses: true, wall: "#2a2c2e" },
-    { name: "Fatima", skin: "#b98263", hair: "#5d7385", shirt: "#5d7385", style: "wrap",  wall: "#2c2f33" },
-    { name: "Chen",   skin: "#e8c9a4", hair: "#121212", shirt: "#8a8a86", style: "short", phones: true, wall: "#292b2e" },
-    { name: "Taylor", skin: "#8a5a3c", hair: "#1a1a1a", shirt: "#c49a3a", style: "curly", wall: "#2d2b2a" },
-    { name: "Lena",   skin: "#f3dcc8", hair: "#d8b27a", shirt: "#5b7f8a", style: "bun",   glasses: true, wall: "#2b2e31" },
-    { name: "Omar",   skin: "#9a6646", hair: "#191512", shirt: "#3e5a3a", style: "short", beard: true, wall: "#2c2d2b" },
-    { name: "Nina",   skin: "#5c3a26", hair: "#120d0b", shirt: "#a64d6b", style: "afro",  phones: true, wall: "#2a2b30" },
-    { name: "Sam",    skin: "#e2b48f", hair: "#8c8378", shirt: "#5a5f66", style: "short", glasses: true, wall: "#2e2f31" },
-    { name: "Maya",   skin: "#c99272", hair: "#4a2c1d", shirt: "#2c6e8f", style: "long",  wall: "#2b2c2f" },
-    { name: "You",    skin: "#9a9590", hair: "#6f6a65", shirt: "#6f6a65", style: "short", wall: "#22252a", you: true }
-  ];
-
-  /* =========================================================
-     THE MEETING SCRIPT
-     t      = seconds from start
-     cap    = "Read the captions" mode: what the captions show
-     cc     = "Both" mode: live captions, about 85% accurate.
-              {heard>fixed} shows "heard" first, then the caption
-              engine rewrites it a moment later. Sometimes the
-              rewrite fixes a mistake, sometimes it creates one.
-     accent = harder to parse visually
-     Each line has a matching voice clip in voices.js (same order).
-     ========================================================= */
-
-  const SCRIPT = [
-    { t: 3.9,  who: "Sarah",  text: "Okay, I think that's everyone. Thanks for joining.",
-      cc: "Okay, I think {that's every one>that's everyone}. Thanks for joining." },
-    { t: 8.3,  who: "Sarah",  text: "So I think we should revisit the timeline.",
-      cc: "So I think we should {revisits>revisit} the timeline." },
-    { t: 9.0,  who: "Daniel", text: "Yeah, but the thing is—", cap: "Yeah, but the thing is",
-      cc: "Yeah, {that>but} the thing is" },
-    { t: 9.7,  who: "Priya",  text: "Actually, from our perspective—", cap: "Actually, from our prospective", accent: true,
-      cc: "Actually, from our {perspective>prospective}" },
-    { t: 11.4, who: "Sarah",  text: "We need to revisit the timeline.", cap: "We need to revisit the time line.",
-      cc: "We need to {receive it>revisit} the time line." },
-    { t: 12.8, who: "Alex",   text: "…and I think the client—", cap: "…and I think the climate",
-      cc: "…and I think the climate" },
-    { t: 13.6, who: "Maria",  text: "Sorry, you cut out there.", cap: "Sorry, you got out there.",
-      cc: "Sorry, you {got>cut} out {their>there}." },
-    { t: 15.0, who: "Daniel", text: "Can we park that until Thursday?", cap: "Can we park that until third day?",
-      cc: "Can we {part>park} that until third day?" },
-    { t: 15.8, who: "Priya",  text: "The numbers don't match the deck.", accent: true,
-      cc: "The {number's>numbers} don't match the debt." },
-    { t: 16.6, who: "James",  text: "Wait, which version are we on?",
-      cc: "Wait, which {virgin>version} are we on?" },
-    { t: 17.2, who: "Chen",   text: "Mm-hm.", cap: "[inaudible]", cc: "[inaudible]" },
-    { t: 18.0, who: "Fatima", text: "I can share my screen—", cap: "I can share my scream",
-      cc: "I can share my scream" },
-    { t: 18.6, who: "Alex",   text: "…budget's fine if Q3 holds.", cap: "…budge it is fine if cue three holds",
-      cc: "…{budget>budget's} fine if cue three holds" },
-    { t: 19.3, who: "Omar",   text: "Ha, right.", cap: "[laughter]", cc: "[laughter] {write>right}." },
-    { t: 19.8, who: "Sarah",  text: "Let's not go down that rabbit hole.",
-      cc: "Let's not go down that rabbit {hole>whole}." },
-    { t: 20.4, who: "Lena",   text: "Is everyone seeing this?",
-      cc: "Is every one {seen>seeing} this?" },
-    { t: 20.9, who: "Maria",  text: "No, it's still loading—", cap: "No it's still",
-      cc: "No, it's {steel>still}" },
-    { t: 21.1, who: "Daniel", text: "—so if we push it a week—", cap: "[crosstalk]",
-      cc: "so if we {push>put} it a weak" },
-    { t: 21.7, who: "Taylor", text: "Can I jump in quickly?",
-      cc: "Can I {jumping>jump in} quickly?" },
-    { t: 22.2, who: "Priya",  text: "…so that's the risk, basically.", cap: "so that's the wrist basically", accent: true,
-      cc: "…so that's the wrist, basically." },
-    { t: 22.6, who: "Nina",   text: "Agreed.", cap: "A great.", cc: "{A great>Agreed}." },
-    { t: 23.0, who: "James",  text: "Hang on, hang on—", cap: "Hang on hang on",
-      cc: "Hang on, {hang on>hanging}" },
-    { t: 23.4, who: "Maya",   text: "I'll put it in the chat.",
-      cc: "{All>I'll} put it in the {chat>chart}." },
-    { t: 24.6, who: "Sarah",  text: "What do you think?", ask: true },
-    { t: 27.0, who: "Sarah",  text: "No worries, we can come back to it.",
-      cc: "No worries, we can come back {through>to} it." },
-    { t: 28.0, who: "James",  text: "Okay, I think that's time.",
-      cc: "Okay, I think {that's>that} time." },
-    { t: 28.6, who: "Maria",  text: "Thanks, all!", cap: "Thanks all" },
-    { t: 28.9, who: "Chen",   text: "Bye!" },
-    { t: 29.1, who: "Fatima", text: "Bye, everyone!" }
-  ];
-
-  const CAPTION_LAG = 0.8;   // seconds between a spoken word and its caption ("Both" mode)
-
-  const MEETING_SECONDS = 31.3;   // the whole 30-minute call, compressed
-  const ASK_AT = 24.6;
-  const RESUME_AT = 27.0;
-
-  const MODES = {
-    listen: {
-      label: "Mode · Just listen",
-      start: "Start with listening →",
-      pipeline: ["Sound", "Words", "Meaning", "Memory"],
-      status: ["Listening", "Following another voice", "Separating voices", "Filling in the gaps", "Too many signals"],
-      final: "This is what “just listen” can feel like."
-    },
-    captions: {
-      label: "Mode · Read the captions",
-      start: "Start with captions →",
-      pipeline: ["Text", "Words", "Meaning", "Memory"],
-      status: ["Reading captions", "Captions are catching up", "Reading and checking", "Guessing the missing words", "Too many lines"],
-      final: "This is what “just read the captions” can feel like."
-    },
-    both: {
-      label: "Mode · Listen + read",
-      start: "Start with both →",
-      pipeline: ["Sound + text", "Reconcile", "Meaning", "Memory"],
-      status: ["Listening and reading", "Matching sound to text", "Listen. Read. Reconcile.", "Which one is right?", "Too many signals"],
-      final: "This is what “just listen” can feel like."
-    }
-  };
-
-  const STATUS_TIMES = [0, 9.0, 13.0, 18.0, 21.5];
-
-  /* =========================================================
-     ELEMENTS + STATE
-     ========================================================= */
-
-  const $ = (id) => document.getElementById(id);
-
-  const stage = $("stage");
-  const screens = { choice: $("choiceScreen"), meeting: $("meetingScreen"), ending: $("endingScreen") };
-  const startButton = $("startButton");
-  const cards = document.querySelectorAll(".choice-card");
-  const grid = $("peopleGrid");
-  const body = $("meetingBody");
-  const particlesBox = $("particles");
-  const captions = $("captions");
-  const captionLines = captions.querySelectorAll(".cc-fixed .line");
-  const ccLive = $("ccLive");
-  const captionNote = $("captionNote");
-  const statusEl = $("status");
-  const pipelineEl = $("pipeline");
-  const bars = $("bars");
-  const afterBars = $("afterBars");
-  const clock = $("clock");
-  const soundToggle = $("soundToggle");
-
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  let mode = null;
-  let timers = [];
-  let ticker = null;
-  let rafId = null;
-  let startedAt = 0;
-  let load = 0;
-  let soundOn = true;
-  let captionQueue = Promise.resolve();
-  let captionRun = 0;
-  let captionPending = 0;
-  const tiles = {};
-
-  function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
-
-  function stopAll() {
-    timers.forEach(clearTimeout);
-    timers = [];
-    clearInterval(ticker);
-    cancelAnimationFrame(rafId);
-    captionRun++;
-  }
-
-  function show(name) {
-    Object.entries(screens).forEach(([key, el]) => el.classList.toggle("on", key === name));
-  }
-
-  /* =========================================================
-     BUILD TILES + BARS
-     ========================================================= */
-
-  function buildTiles() {
-    grid.innerHTML = "";
-    PEOPLE.forEach((p) => {
-      const tile = document.createElement("div");
-      tile.className = `tile style-${p.style}${p.you ? " you" : ""}`;
-      tile.style.setProperty("--skin", p.skin);
-      tile.style.setProperty("--hair", p.hair);
-      tile.style.setProperty("--shirt", p.shirt);
-      tile.style.setProperty("--wall", p.wall);
-
-      const longHair = p.style === "long" || p.style === "wrap";
-      tile.innerHTML = `
-        <div class="figure">
-          ${longHair ? '<div class="hair-back"></div>' : ""}
-          <div class="neck"></div>
-          <div class="shirt"></div>
-          <div class="head">
-            <div class="hair"></div>
-            <div class="eyes"></div>
-            ${p.beard ? '<div class="beard"></div>' : ""}
-            <div class="mouth"></div>
-            ${p.glasses ? '<div class="glasses"></div>' : ""}
-            ${p.phones ? '<div class="phones"></div>' : ""}
-          </div>
-        </div>
-        <span class="name">${p.name}</span>`;
-      grid.appendChild(tile);
-      tiles[p.name] = tile;
-    });
-  }
-
-  function buildBars(el, count) {
-    el.innerHTML = "";
-    for (let i = 0; i < count; i++) el.appendChild(document.createElement("span"));
-  }
-
-  function drawBars(el, level) {
-    el.querySelectorAll("span").forEach((bar) => {
-      const h = level <= 0.01 ? 6 : 6 + Math.min(94, (level * 0.8 + Math.random() * 0.35 * level) * 94);
-      bar.style.height = `${h}%`;
-    });
-  }
-
-  buildTiles();
-  buildBars(bars, 18);
-  buildBars(afterBars, 12);
-  window.addEventListener("load", () => { if (!audio) setupAudio(); });
-
-  /* =========================================================
-     SOUND (a soft synthetic murmur, no audio files)
-     ========================================================= */
-
-  let audio = null;
-
-  // Created at page load (silent until the visitor clicks Start),
-  // so the voice clips are already decoded when the meeting begins.
-  function setupAudio() {
-    const Ctx = window.AudioContext || window.webkitAudioContext;
-    if (!Ctx) return;
-    const ctx = new Ctx();
-
-    const master = ctx.createGain();
-    master.gain.value = soundOn ? 1 : 0;
-    master.connect(ctx.destination);
-
-    // Everything people say passes through one "clarity" filter.
-    // As the meeting overloads, it closes down and voices lose their edges.
-    const clarity = ctx.createBiquadFilter();
-    clarity.type = "lowpass";
-    clarity.frequency.value = 9000;
-    clarity.connect(master);
-
-    const noise = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
-    const data = noise.getChannelData(0);
-    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
-
-    const room = ctx.createBufferSource();
-    room.buffer = noise;
-    room.loop = true;
-    const roomFilter = ctx.createBiquadFilter();
-    roomFilter.type = "lowpass";
-    roomFilter.frequency.value = 380;
-    const roomGain = ctx.createGain();
-    roomGain.gain.value = 0;
-    room.connect(roomFilter).connect(roomGain).connect(master);
-    room.start();
-
-    // A short synthetic room echo for people sitting far from their mic.
-    const reverb = ctx.createConvolver();
-    const len = Math.floor(ctx.sampleRate * 1.1);
-    const impulse = ctx.createBuffer(2, len, ctx.sampleRate);
-    for (let c = 0; c < 2; c++) {
-      const d = impulse.getChannelData(c);
-      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6);
-    }
-    reverb.buffer = impulse;
-    reverb.connect(clarity);
-
-    audio = { ctx, master, clarity, noise, roomGain, reverb, clips: [], playing: new Set() };
-
-    // Decode the real voices (voices.js). Without it, the murmur is used instead.
-    (window.VOICE_CLIPS || []).forEach((url, i) => {
-      fetch(url)
-        .then((r) => r.arrayBuffer())
-        .then((buf) => ctx.decodeAudioData(buf))
-        .then((decoded) => { audio.clips[i] = decoded; })
-        .catch(() => {});
-    });
-  }
-
-  function initAudio() {
-    if (!audio) setupAudio();
-    if (audio) audio.ctx.resume();
-  }
-
-  // Remember what is playing so "Leave" can cut it off immediately.
-  function track(src) {
-    audio.playing.add(src);
-    src.onended = () => audio.playing.delete(src);
-  }
-
-  function silenceAll() {
-    if (!audio) return;
-    audio.playing.forEach((src) => { try { src.stop(); } catch (e) {} });
-    audio.playing.clear();
-    audio.roomGain.gain.cancelScheduledValues(audio.ctx.currentTime);
-    audio.roomGain.gain.setValueAtTime(0, audio.ctx.currentTime);
-  }
-
-  function setRoom(level, seconds = 0.6) {
-    if (!audio) return;
-    audio.roomGain.gain.setTargetAtTime(level, audio.ctx.currentTime, seconds / 3);
-  }
-
-  function setClarity(hz) {
-    if (!audio) return;
-    audio.clarity.frequency.setTargetAtTime(hz, audio.ctx.currentTime, 0.3);
-  }
-
-  // How each person comes through on the call.
-  const LINE_QUALITY = {
-    Alex:   "headset",    // cheap headset: thin and crunchy
-    Maria:  "dropouts",   // her connection keeps cutting out
-    James:  "far",        // sitting back from the laptop mic
-    Chen:   "mumble",     // quiet, low, half to himself
-    Fatima: "echo",       // her speakers bleed back into her mic
-    Nina:   "muffled",    // mic under a scarf
-    Daniel: "quiet"
-  };
-
-  function clipDuration(index) {
-    const clip = audio && audio.clips[index];
-    return clip ? clip.duration : null;
-  }
-
-  // Plays a real voice clip. Returns its length in seconds, or null.
-  function playClip(index, line) {
-    const clip = audio && audio.clips[index];
-    if (!clip || mode === "captions") return null;
-
-    const { ctx } = audio;
-    const now = ctx.currentTime;
-    const src = ctx.createBufferSource();
-    src.buffer = clip;
-
-    // Spread voices left/right by where their tile sits.
-    const order = PEOPLE.findIndex((p) => p.name === line.who);
-    const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : ctx.createGain();
-    if (pan.pan) pan.pan.value = ((order % 5) - 2) * 0.3;
-
-    const level = ctx.createGain();
-    level.gain.value = 0.9;
-
-    let node = src;
-    const chain = (next) => { node.connect(next); node = next; };
-    const filter = (type, hz, q = 0.7) => {
-      const f = ctx.createBiquadFilter();
-      f.type = type; f.frequency.value = hz; f.Q.value = q;
-      return f;
-    };
-
-    switch (line.ask ? "clear" : LINE_QUALITY[line.who]) {
-      case "headset": {
-        chain(filter("highpass", 420));
-        chain(filter("lowpass", 3000));
-        const crunch = ctx.createWaveShaper();
-        const curve = new Float32Array(256);
-        for (let i = 0; i < 256; i++) { const x = i / 128 - 1; curve[i] = Math.tanh(x * 2.4); }
-        crunch.curve = curve;
-        chain(crunch);
-        level.gain.value = 0.55;
-        break;
-      }
-      case "dropouts": {
-        const gate = ctx.createGain();
-        chain(gate);
-        for (let s = 0.35; s < clip.duration; s += 0.45 + Math.random() * 0.4) {
-          gate.gain.setValueAtTime(0.05, now + s);
-          gate.gain.setValueAtTime(1, now + s + 0.12 + Math.random() * 0.12);
-        }
-        break;
-      }
-      case "far":
-        chain(filter("lowpass", 2300));
-        level.gain.value = 0.6;
-        break;
-      case "mumble":
-        chain(filter("lowpass", 1000));
-        level.gain.value = 0.45;
-        break;
-      case "echo": {
-        const delay = ctx.createDelay(1);
-        delay.delayTime.value = 0.21;
-        const feedback = ctx.createGain();
-        feedback.gain.value = 0.32;
-        delay.connect(feedback).connect(delay);
-        node.connect(delay);
-        delay.connect(level);
-        break;
-      }
-      case "muffled":
-        chain(filter("lowpass", 1700));
-        level.gain.value = 0.75;
-        break;
-      case "quiet":
-        level.gain.value = 0.7;
-        break;
-    }
-
-    // When the room is overloaded, words go missing for everyone.
-    if (!line.ask && load > 0.45) {
-      const dips = ctx.createGain();
-      chain(dips);
-      const chance = mode === "listen" ? load * 0.55 : load * 0.35;
-      for (let s = 0.2; s < clip.duration - 0.15; s += 0.28) {
-        if (Math.random() < chance * 0.4) {
-          dips.gain.setTargetAtTime(0.12, now + s, 0.02);
-          dips.gain.setTargetAtTime(1, now + s + 0.14, 0.03);
-        }
-      }
-    }
-
-    chain(level);
-    level.connect(pan);
-
-    if (line.ask) {
-      pan.connect(audio.master);            // the question comes through clearly
-    } else {
-      pan.connect(audio.clarity);
-      if (LINE_QUALITY[line.who] === "far") {
-        const send = ctx.createGain();
-        send.gain.value = 0.45;
-        pan.connect(send).connect(audio.reverb);
-      }
-    }
-
-    track(src);
-    src.start(now);
-    return clip.duration;
-  }
-
-  function voice(person, words) {
-    if (!audio || mode === null) return;
-    const { ctx, master, noise } = audio;
-    const now = ctx.currentTime;
-    const dur = Math.max(0.45, words * 0.27);
-    const muffled = mode === "captions";
-
-    const src = ctx.createBufferSource();
-    src.buffer = noise;
-    src.loop = true;
-
-    const formant = ctx.createBiquadFilter();
-    formant.type = "bandpass";
-    formant.frequency.value = 520 + (person.charCodeAt(0) * 37) % 900;
-    formant.Q.value = 1.4;
-
-    const shade = ctx.createBiquadFilter();
-    shade.type = "lowpass";
-    shade.frequency.value = muffled ? 650 : 2600;
-
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0, now);
-    const peak = muffled ? 0.05 : 0.14;
-    for (let s = 0; s < dur; s += 0.09 + Math.random() * 0.08) {
-      gain.gain.setTargetAtTime(peak * (0.3 + Math.random() * 0.7), now + s, 0.025);
-    }
-    gain.gain.setTargetAtTime(0, now + dur, 0.05);
-
-    src.connect(formant).connect(shade).connect(gain).connect(master);
-    track(src);
-    src.start(now);
-    src.stop(now + dur + 0.4);
-  }
-
-  soundToggle.addEventListener("click", () => {
-    soundOn = !soundOn;
-    soundToggle.textContent = soundOn ? "Sound on" : "Sound off";
-    if (audio) audio.master.gain.setTargetAtTime(soundOn ? 1 : 0, audio.ctx.currentTime, 0.05);
-  });
-
-  /* =========================================================
-     LOAD: calm → overload (drives everything visual)
-     ========================================================= */
-
-  function loadAt(t) {
-    if (t < 8) return 0.04 + (t / 8) * 0.06;
-    if (t < ASK_AT) {
-      const x = (t - 8) / (ASK_AT - 8);
-      return 0.1 + 0.9 * x * x * (3 - 2 * x);
-    }
-    return 1;
-  }
-
-  function syncParticles(level) {
-    const target = Math.round(level * 90);
-    const box = particlesBox.getBoundingClientRect();
-    while (particlesBox.children.length < target) {
-      const dot = document.createElement("span");
-      const size = 2 + Math.random() * 3;
-      dot.className = "particle";
-      dot.style.width = dot.style.height = `${size}px`;
-      dot.style.left = `${Math.random() * box.width}px`;
-      dot.style.top = `${Math.random() * box.height}px`;
-      dot.style.setProperty("--dur", `${6 + Math.random() * 8}s`);
-      dot.style.setProperty("--fx", `${(Math.random() - 0.5) * 60}px`);
-      dot.style.setProperty("--fy", `${(Math.random() - 0.5) * 60}px`);
-      particlesBox.appendChild(dot);
-    }
-  }
-
-  function tick() {
-    const t = (performance.now() - startedAt) / 1000;
-    load = loadAt(t);
-    stage.style.setProperty("--slow", (1 + load * 1.4).toFixed(2));
-    drawBars(bars, load);
-    syncParticles(load);
-    pipelineEl.classList.toggle("busy", load > 0.35);
-
-    // Voices lose their edges as the room fills up (not during the question).
-    if (t < ASK_AT || t > RESUME_AT) {
-      setClarity(mode === "listen" ? 9000 - load * 6200 : 9000 - load * 5000);
-      setRoom(0.02 + load * 0.035);
-    }
-    if (load > 0.8 && !pipelineEl.querySelector(".unknown")) addUnknownStep();
-  }
-
-  function runClock() {
-    const t = (performance.now() - startedAt) / 1000;
-    const total = Math.min(1800, Math.round((t / MEETING_SECONDS) * 1800));
-    const mm = String(Math.floor(total / 60)).padStart(2, "0");
-    const ss = String(total % 60).padStart(2, "0");
-    clock.textContent = `${mm}:${ss} / 30:00`;
-    if (t < MEETING_SECONDS) rafId = requestAnimationFrame(runClock);
-  }
-
-  /* =========================================================
-     PIPELINE
-     ========================================================= */
-
-  function buildPipeline() {
-    pipelineEl.innerHTML = MODES[mode].pipeline
-      .map((step, i) => `${i ? '<span class="arrow">→</span>' : ""}<span class="step">${step}</span>`)
-      .join("");
-  }
-
-  function addUnknownStep() {
-    pipelineEl.insertAdjacentHTML("beforeend", '<span class="arrow">→</span><span class="step unknown">???</span>');
-  }
-
-  /* =========================================================
-     SPEECH FRAGMENTS
-     ========================================================= */
-
-  function degrade(text, loss, accent) {
-    return text.split(" ").map((word, i) => {
-      if (i > 0 && Math.random() < loss) return `<span class="lost">${word}</span>`;
-      if (accent) {
-        const r = (Math.random() - 0.5) * 4;
-        const y = (Math.random() - 0.5) * 2;
-        return `<span class="acc" style="transform: rotate(${r}deg) translateY(${y}px)">${word}</span>`;
-      }
-      return word;
-    }).join(" ");
-  }
-
-  function placeNear(el, tile, dx = 0) {
-    const b = body.getBoundingClientRect();
-    const r = tile.getBoundingClientRect();
-    const maxLeft = b.width - 240;
-    const left = Math.max(10, Math.min(maxLeft, r.left - b.left + r.width * 0.12 + dx));
-    const top = Math.max(8, r.top - b.top - 18 + (Math.random() - 0.5) * 22);
-    el.style.left = `${left}px`;
-    el.style.top = `${top}px`;
-  }
-
-  function speak(line) {
-    const tile = tiles[line.who];
-    if (!tile) return;
-
-    const index = SCRIPT.indexOf(line);
-    const words = line.text.split(" ").length;
-
-    // Real voice when available; the old murmur otherwise (and in captions mode).
-    const seconds = playClip(index, line);
-    if (seconds === null) voice(line.who, words);
-    const spoken = seconds ?? clipDuration(index) ?? words * 0.3;
-
-    tile.classList.add("speaking");
-    later(() => tile.classList.remove("speaking"), Math.max(500, spoken * 1000));
-
-    if (mode === "both") liveCaption(line, spoken);
-
-    if (line.ask) { askYou(line); return; }
-
-    const frag = document.createElement("div");
-    frag.className = "frag";
-    // Lifetime is fixed when the bubble appears; busier moments linger longer.
-    const life = (2.6 + load * 1.8 + Math.random() * 0.6) * (1 + load * 0.5);
-    frag.style.setProperty("--life", `${life.toFixed(2)}s`);
-    later(() => frag.remove(), life * 1000 + 200);
-    frag.style.setProperty("--dx", `${(Math.random() - 0.5) * 40}px`);
-
-    if (mode === "captions") {
-      frag.classList.add("ghost");
-      frag.innerHTML = `<span class="who">${line.who}</span><span class="dots"><i></i><i></i><i></i></span>`;
-    } else {
-      const loss = mode === "listen" ? Math.max(0, load - 0.25) * 0.6 : Math.max(0, load - 0.4) * 0.35;
-      frag.innerHTML = `<span class="who">${line.who}</span>${degrade(line.text, loss, line.accent)}`;
-    }
-
-    body.appendChild(frag);
-    placeNear(frag, tile, (Math.random() - 0.5) * 30);
-    frag.addEventListener("animationend", () => frag.remove());
-
-    if (mode === "captions") caption(line.who, line.cap ?? line.text);
-  }
-
-  function askYou(line) {
-    const you = tiles.You;
-    you.classList.add("asked");
-    setRoom(0.004, 0.4);
-
-    const ask = document.createElement("div");
-    ask.className = "frag ask";
-    ask.innerHTML = `<span class="who">${line.who}</span>${line.text}`;
-    body.appendChild(ask);
-    placeNear(ask, you, -120);
-
-    if (mode === "captions") caption(line.who, line.text, true);
-    statusEl.textContent = "Everyone is waiting for you.";
-
-    later(() => {
-      you.classList.remove("asked");
-      ask.style.transition = "opacity .6s ease";
-      ask.style.opacity = "0";
-      later(() => ask.remove(), 700);
-      setRoom(0.02);
-      statusEl.textContent = "Trying to catch up";
-    }, (RESUME_AT - ASK_AT) * 1000 - 150);
-  }
-
-  /* =========================================================
-     CAPTIONS: arrive late, type word by word, sometimes wrong
-     ========================================================= */
-
-  function caption(who, text, mustShow = false) {
-    const delay = 600 + load * 900;
-
-    // When people talk over each other, the captions fall behind and drop lines.
-    if (captionPending >= 2 && !mustShow) return;
-
-    // A question aimed at you cuts through whatever was still being typed.
-    if (mustShow) {
-      captionRun++;
-      captionPending = 0;
-      captionQueue = Promise.resolve();
-    }
-    const run = captionRun;
-    captionPending++;
-
-    captionQueue = captionQueue.then(() => new Promise((resolve) => {
-      const done = () => { captionPending = Math.max(0, captionPending - 1); resolve(); };
-      setTimeout(() => {
-        if (run !== captionRun) return done();
-        captionLines[0].innerHTML = captionLines[1].innerHTML;
-        captionLines[0].classList.add("old");
-        captionLines[1].innerHTML = `<span class="who">${who}</span>`;
-
-        const words = text.split(" ");
-        const perWord = 70 + load * 45;
-        let i = 0;
-        const typer = setInterval(() => {
-          if (run !== captionRun) { clearInterval(typer); return done(); }
-          captionLines[1].insertAdjacentText("beforeend", (i ? " " : "") + words[i]);
-          i++;
-          if (i >= words.length) { clearInterval(typer); done(); }
-        }, perWord);
-      }, delay);
-    }));
-
-    captionNote.textContent =
-      load > 0.85 ? "Multiple speakers · captions overlapping"
-      : load > 0.45 ? "Caption delay · possible errors"
-      : "Live captions";
-  }
-
-  /* =========================================================
-     LIVE CAPTIONS ("Both" mode)
-     Each word appears 0.8 s after it is spoken, paced to the
-     real voice clip. Some words are rewritten a moment later,
-     the way live captions revise themselves mid-sentence.
-     ========================================================= */
-
-  function parseCaption(cc) {
-    const tokens = [];
-    const pattern = /\{([^}]*)\}|\S+/g;
-    let match;
-    while ((match = pattern.exec(cc))) {
-      if (match[1] !== undefined) {
-        const [heard, fixed] = match[1].split(">");
-        tokens.push({ heard, fixed: fixed ?? heard });
-      } else {
-        // Punctuation glued to a {…} token (e.g. "{a>b}.") stays attached.
-        const last = tokens[tokens.length - 1];
-        if (last && /^[.,!?…]+$/.test(match[0])) {
-          last.heard += match[0];
-          last.fixed += match[0];
-        } else {
-          tokens.push({ heard: match[0], fixed: match[0] });
-        }
-      }
-    }
-    return tokens;
-  }
-
-  function liveCaption(line, spokenSeconds) {
-    const tokens = parseCaption((line.cc ?? line.text).replace(/\}([.,!?…]+)/g, "} $1"));
-    const perWord = (spokenSeconds * 1000) / tokens.length;
-
-    later(() => {
-      const row = document.createElement("div");
-      row.className = "line";
-      row.innerHTML = `<span class="who">${line.who}</span><span class="words"></span>`;
-      ccLive.appendChild(row);
-
-      // Keep the last three lines; older ones dim, then scroll away.
-      const rows = ccLive.querySelectorAll(".line");
-      rows.forEach((r, i) => r.classList.toggle("old", i < rows.length - 1));
-      if (rows.length > 3) rows[0].remove();
-
-      const wordsEl = row.querySelector(".words");
-      tokens.forEach((token, i) => {
-        later(() => {
-          const word = document.createElement("span");
-          word.className = "w";
-          word.textContent = token.heard;
-          if (i) wordsEl.append(" ");
-          wordsEl.append(word);
-
-          if (token.fixed !== token.heard) {
-            later(() => {
-              word.textContent = token.fixed;
-              word.classList.add("revised");
-            }, 260 + Math.random() * 420);
-          }
-        }, i * perWord);
-      });
-    }, CAPTION_LAG * 1000);
-
-    captionNote.textContent =
-      load > 0.85 ? "Live captions · multiple speakers"
-      : "Live captions · auto-correcting";
-  }
-
-  /* =========================================================
-     RUN THE MEETING
-     ========================================================= */
-
-  function resetMeeting() {
-    stopAll();
-    body.querySelectorAll(".frag").forEach((f) => f.remove());
-    particlesBox.innerHTML = "";
-    Object.values(tiles).forEach((t) => t.classList.remove("joined", "gone", "speaking", "asked"));
-    captionLines.forEach((l) => { l.innerHTML = ""; l.classList.remove("old"); });
-    captionQueue = Promise.resolve();
-    captionPending = 0;
-    captions.classList.toggle("on", mode !== "listen");
-    captions.classList.toggle("live", mode === "both");
-    ccLive.innerHTML = "";
-    setClarity(9000);
-    captionNote.textContent = "Live captions";
-    statusEl.textContent = "Waiting for others to join…";
-    $("modeChip").textContent = MODES[mode].label;
-    stage.style.setProperty("--slow", 1);
-    drawBars(bars, 0);
-    clock.textContent = "00:00 / 30:00";
-    buildPipeline();
-    document.querySelectorAll(".beat, .beat .ln").forEach((el) => el.classList.remove("on"));
-    $("afterglow").style.opacity = "1";
-  }
-
-  function startMeeting() {
-    resetMeeting();
-    show("meeting");
-    initAudio();
-    setRoom(0.02, 1.5);
-
-    startedAt = performance.now();
-    ticker = setInterval(tick, 140);
-    rafId = requestAnimationFrame(runClock);
-
-    // People join, one by one (you first).
-    later(() => tiles.You.classList.add("joined"), 250);
-    PEOPLE.filter((p) => !p.you)
-      .map((p) => p.name)
-      .sort(() => Math.random() - 0.5)
-      .forEach((name, i) => later(() => tiles[name].classList.add("joined"), 600 + i * 210));
-
-    SCRIPT.forEach((line) => later(() => speak(line), line.t * 1000));
-
-    STATUS_TIMES.forEach((t, i) => later(() => { statusEl.textContent = MODES[mode].status[i]; }, Math.max(t * 1000, 3800 * (i === 0))));
-
-    // Everyone leaves.
-    PEOPLE.filter((p) => !p.you).forEach((p, i) => {
-      later(() => tiles[p.name].classList.add("gone"), (29.3 + i * 0.11) * 1000);
-    });
-    later(() => { statusEl.textContent = "Meeting ended"; }, 30.2 * 1000);
-
-    later(endMeeting, MEETING_SECONDS * 1000);
-  }
-
-  /* =========================================================
-     SILENCE
-     ========================================================= */
-
-  function endMeeting() {
-    stopAll();
-    setRoom(0, 0.15);                       // real silence
-    show("ending");
-    $("finalLine").textContent = MODES[mode].final;
-
-    // The meeting is over, but the processing winds down slowly.
-    let glow = 1;
-    const fade = setInterval(() => {
-      glow = Math.max(0, glow - 0.018);
-      drawBars(afterBars, glow);
-      if (glow === 0) { clearInterval(fade); $("afterglow").style.opacity = "0"; }
-    }, 160);
-    timers.push(fade);
-
-    const beat = (id, at) => later(() => $(id).classList.add("on"), at);
-    const line = (id, n, at) => later(() => $(id).querySelectorAll(".ln")[n].classList.add("on"), at);
-    const close = (id, at) => later(() => $(id).classList.remove("on"), at);
-
-    beat("beatA", 1400);  line("beatA", 0, 1500);
-    close("beatA", 4200);
-
-    beat("beatB", 5200);  line("beatB", 0, 5300);
-    line("beatB", 1, 6200);
-    line("beatB", 2, 8400);
-    close("beatB", 12200);
-
-    beat("beatC", 13300); line("beatC", 0, 13400);
-    line("beatC", 1, 15400);
-    line("beatC", 2, 17800);
-    line("beatC", 3, 19400);
-  }
-
-  /* =========================================================
-     CHOICES + BUTTONS
-     ========================================================= */
-
-  cards.forEach((card) => {
-    card.addEventListener("click", () => {
-      cards.forEach((c) => c.classList.remove("selected"));
-      card.classList.add("selected");
-      mode = card.dataset.mode;
-      startButton.disabled = false;
-      startButton.textContent = MODES[mode].start;
-    });
-  });
-
-  startButton.addEventListener("click", startMeeting);
-
-  $("againButton").addEventListener("click", startMeeting);
-
-  function backToChoices() {
-    stopAll();
-    silenceAll();
-    body.querySelectorAll(".frag").forEach((f) => f.remove());
-    cards.forEach((c) => c.classList.remove("selected"));
-    mode = null;
-    startButton.disabled = true;
-    startButton.textContent = "Choose how to follow the meeting";
-    show("choice");
-  }
-
-  $("otherButton").addEventListener("click", backToChoices);
-
-  // Visitors can leave the simulation at any time.
-  $("leaveButton").addEventListener("click", backToChoices);
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && screens.meeting.classList.contains("on")) backToChoices();
-  });
-</script>
 </body>
 </html>
