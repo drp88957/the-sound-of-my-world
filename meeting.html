@@ -625,6 +625,53 @@
       transition: height .12s ease;
     }
 
+    /* ---------- live listening effort ---------- */
+
+    .effort {
+      display: grid;
+      grid-template-columns: 1.4fr auto 1fr;
+      align-items: center;
+      gap: 22px;
+      padding: 14px 22px 16px;
+      border-top: 1px solid #d7d3ca;
+      background: #f2efe8;
+    }
+
+    .effort-kicker { font-size: 9px; font-weight: 800; letter-spacing: .14em; color: #c4683f; }
+
+    .effort-title {
+      font-family: Georgia, serif;
+      font-size: 21px;
+      margin: 4px 0 3px;
+      transition: color .4s ease;
+    }
+
+    .effort-copy { font-size: 12px; line-height: 1.5; color: #6c6962; min-height: 18px; }
+
+    .talkers { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 150px; }
+    .talkers-dots { display: flex; gap: 4px; }
+    .talkers-dots i { width: 9px; height: 9px; border-radius: 50%; background: #dcd7cc; transition: background .2s ease, transform .2s ease; }
+    .talkers-dots i.on { background: #c4683f; transform: scale(1.15); }
+    .talkers-text { font-size: 11px; color: #6c6962; white-space: nowrap; }
+
+    .effort-right { display: flex; flex-direction: column; gap: 6px; }
+    .effort-meter { display: flex; gap: 5px; }
+    .effort-meter i { height: 7px; flex: 1; border-radius: 99px; background: #dcd7cc; transition: background .3s ease; }
+    .effort-meter i.on { background: #6f9688; }
+    .effort-meter.mid i.on { background: #d9a441; }
+    .effort-meter.high i.on { background: #d77d51; }
+    .effort-scale { display: flex; justify-content: space-between; font-size: 9px; color: #8d8b86; }
+    .effort-trace { width: 100%; height: 30px; display: block; }
+
+    /* Ending summary */
+    .effort-summary { margin-top: 18px; max-width: 520px; }
+    .effort-summary p { margin: 0 0 8px; font-size: 14px; line-height: 1.6; color: #5f5d58; }
+    .effort-summary b { color: #c4683f; font-weight: 600; }
+    .effort-summary svg { width: 100%; height: 46px; display: block; }
+    .compare { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .compare span { font-size: 11px; border: 1px solid #d7d3ca; border-radius: 999px; padding: 4px 10px; color: #5f5d58; }
+    .compare span.current { border-color: #c4683f; color: #c4683f; }
+
     /* =========================================
        3. ENDING
        ========================================= */
@@ -768,6 +815,7 @@
       .meeting-body { padding: 12px; min-height: 620px; }
       .frag { max-width: 170px; font-size: 11px; }
       .statusbar { grid-template-columns: 1fr; text-align: center; }
+      .effort { grid-template-columns: 1fr; gap: 12px; text-align: center; }
       .meter { justify-content: center; }
       .status-left { align-items: center; }
       .beat { padding: 0 24px; }
@@ -869,6 +917,26 @@
           <div class="bars" id="bars"></div>
         </div>
       </div>
+
+      <!-- Live: how much effort it takes to follow, given the strategy and the overlap -->
+      <div class="effort" aria-live="off">
+        <div>
+          <div class="effort-kicker">WHAT IT TAKES TO FOLLOW</div>
+          <div class="effort-title" id="effortTitle">Low effort</div>
+          <div class="effort-copy" id="effortCopy">Waiting for the meeting to start.</div>
+        </div>
+        <div class="talkers">
+          <div class="talkers-dots" id="talkerDots"><i></i><i></i><i></i><i></i><i></i></div>
+          <span class="talkers-text" id="talkersText">Nobody talking</span>
+        </div>
+        <div class="effort-right">
+          <div class="effort-meter" id="effortMeter" role="img" aria-label="Listening effort"><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="effort-scale"><span>Less effort</span><span>More effort</span></div>
+          <svg class="effort-trace" viewBox="0 0 220 30" preserveAspectRatio="none" aria-hidden="true">
+            <polyline id="effortTrace" fill="none" stroke="#d77d51" stroke-width="1.6" stroke-linejoin="round" points=""/>
+          </svg>
+        </div>
+      </div>
     </section>
 
     <!-- ============ 3. SILENCE ============ -->
@@ -887,6 +955,14 @@
         <p class="serif-xl ln">For me, listening isn't always passive.</p>
         <p class="serif-xl ln" style="margin-top: 10px; color: #8a6f3e;">Sometimes, it's work.</p>
         <p class="quiet ln" id="finalLine">This is what “just listen” can feel like.</p>
+        <div class="effort-summary ln">
+          <p id="effortSummary"></p>
+          <svg viewBox="0 0 220 46" preserveAspectRatio="none" aria-hidden="true">
+            <polygon id="summaryArea" fill="#d77d51" fill-opacity=".14" points=""/>
+            <polyline id="summaryTrace" fill="none" stroke="#d77d51" stroke-width="1.6" stroke-linejoin="round" points=""/>
+          </svg>
+          <div class="compare" id="compare"></div>
+        </div>
         <div class="end-actions ln">
           <button type="button" class="ghost-button" id="againButton">Experience it again</button>
           <button type="button" class="ghost-button" id="otherButton">Try another way</button>
@@ -1034,7 +1110,7 @@
       start: "Start with both →",
       pipeline: ["Sound + text", "Reconcile", "Meaning", "Memory"],
       status: ["Listening and reading", "Matching sound to text", "Listen. Read. Reconcile.", "Which one is right?", "Too many signals"],
-      final: "This is what “just listen” can feel like."
+      final: "This is what listening and reading at the same time can feel like."
     }
   };
 
@@ -1464,9 +1540,114 @@
     }
   }
 
+  /* =========================================================
+     LISTENING EFFORT (live)
+     How hard it is to follow depends on the strategy and on how
+     many people talk at once. Illustrative, not a measurement.
+     ========================================================= */
+
+  // base: effort with nobody talking · perVoice: cost of each voice · loadW: how much the room's chaos adds
+  const EFFORT = {
+    listen:   { base: 0.12, perVoice: 0.30, loadW: 0.20 },
+    captions: { base: 0.30, perVoice: 0.16, loadW: 0.25 },
+    both:     { base: 0.24, perVoice: 0.22, loadW: 0.25 }
+  };
+  const LEVELS = [
+    { max: 0.3,  title: "Low effort" },
+    { max: 0.55, title: "Moderate effort" },
+    { max: 0.8,  title: "High effort" },
+    { max: 9,    title: "Overloaded" }
+  ];
+  const EFFORT_COPY = {
+    listen: [
+      "One voice at a time. I can follow it.",
+      "I'm separating voices and filling small gaps.",
+      "Voices overlap. I'm guessing at words I missed.",
+      "Too many voices at once. The meaning is slipping away."
+    ],
+    captions: [
+      "Reading along, a little behind the room.",
+      "The text lags. I'm reading and checking who said what.",
+      "Lines are dropping. I'm piecing sentences together.",
+      "The captions can't keep up, and neither can I."
+    ],
+    both: [
+      "What I hear and what I read line up.",
+      "Matching what I hear to what I read.",
+      "Sound and text disagree. Which one is right?",
+      "Two streams, both breaking up. Everything at once."
+    ]
+  };
+  let effort = 0, effortHistory = [], peakTalkers = 0;
+  const effortResults = JSON.parse(sessionStorage.getItem("sound-effort") || "{}");
+
+  function levelOf(e) { return LEVELS.findIndex((l) => e < l.max); }
+
+  function tracePoints(history, w, h) {
+    if (!history.length) return "";
+    const step = w / Math.max(1, MEETING_SECONDS / 0.14);
+    return history.map((e, i) => `${(i * step).toFixed(1)},${(h - 2 - e * (h - 4)).toFixed(1)}`).join(" ");
+  }
+
+  function updateEffort(t) {
+    const talkers = Object.values(tiles).filter((el) => el.classList.contains("speaking")).length;
+    const asked = t >= ASK_AT && t <= RESUME_AT;
+    const m = EFFORT[mode];
+    let target = m.base + Math.max(0, talkers - 1) * m.perVoice + (talkers ? m.perVoice * 0.4 : 0) + load * m.loadW;
+    if (mode === "captions") target += captionPending * 0.08;   // captions falling behind
+    if (asked) target = 1;
+    target = Math.min(1, target);
+    effort += (target - effort) * 0.22;   // ease, so the meter breathes instead of jumping
+    effortHistory.push(effort);
+    peakTalkers = Math.max(peakTalkers, talkers);
+    renderEffort(talkers, asked);
+  }
+
+  function renderEffort(talkers, asked) {
+    const level = levelOf(effort);
+    const on = Math.max(1, Math.ceil(effort * 5));
+    const meter = $("effortMeter");
+    meter.querySelectorAll("i").forEach((bar, i) => bar.classList.toggle("on", i < on));
+    meter.classList.toggle("mid", on === 3);
+    meter.classList.toggle("high", on >= 4);
+    meter.setAttribute("aria-label", `Listening effort: ${LEVELS[level].title}`);
+    $("effortTitle").textContent = LEVELS[level].title;
+    $("effortTitle").style.color = on >= 4 ? "#c4683f" : "";
+    $("effortCopy").textContent = asked ? "Everyone is waiting for my answer." : (mode ? EFFORT_COPY[mode][level] : "");
+    $("talkerDots").querySelectorAll("i").forEach((dot, i) => dot.classList.toggle("on", i < talkers));
+    $("talkersText").textContent = talkers === 0 ? "Nobody talking" : talkers === 1 ? "1 person talking" : `${talkers} people talking at once`;
+    $("effortTrace").setAttribute("points", tracePoints(effortHistory, 220, 30));
+  }
+
+  function resetEffort() {
+    effort = 0; effortHistory = []; peakTalkers = 0;
+    $("effortTrace").setAttribute("points", "");
+    renderEffort(0, false);
+    $("effortCopy").textContent = "Waiting for the meeting to start.";
+  }
+
+  // Ending: how much of the meeting was hard work, and how the strategies compare.
+  function summarizeEffort() {
+    const hard = effortHistory.filter((e) => e >= LEVELS[1].max).length;
+    const pct = effortHistory.length ? Math.round((hard / effortHistory.length) * 100) : 0;
+    effortResults[mode] = pct;
+    sessionStorage.setItem("sound-effort", JSON.stringify(effortResults));
+    $("effortSummary").innerHTML =
+      `Listening took <b>high effort for ${pct}% of the meeting</b>. At the busiest moment, ${peakTalkers} people were talking at once.`;
+    const line = tracePoints(effortHistory, 220, 46);
+    $("summaryTrace").setAttribute("points", line);
+    $("summaryArea").setAttribute("points", line ? `0,46 ${line} ${line.split(" ").pop().split(",")[0]},46` : "");
+    const names = { listen: "Just listen", captions: "Read the captions", both: "Both" };
+    const tried = Object.keys(names).filter((k) => k in effortResults);
+    $("compare").innerHTML = tried.length > 1
+      ? tried.map((k) => `<span class="${k === mode ? "current" : ""}">${names[k]}: ${effortResults[k]}% high effort</span>`).join("")
+      : "";
+  }
+
   function tick() {
     const t = (performance.now() - startedAt) / 1000;
     load = loadAt(t);
+    updateEffort(t);
     stage.style.setProperty("--slow", (1 + load * 1.4).toFixed(2));
     drawBars(bars, load);
     syncParticles(load);
@@ -1731,6 +1912,7 @@
     $("modeChip").textContent = MODES[mode].label;
     stage.style.setProperty("--slow", 1);
     drawBars(bars, 0);
+    resetEffort();
     clock.textContent = "00:00 / 30:00";
     buildPipeline();
     document.querySelectorAll(".beat, .beat .ln").forEach((el) => el.classList.remove("on"));
@@ -1776,6 +1958,7 @@
     setRoom(0, 0.15);                       // real silence
     show("ending");
     $("finalLine").textContent = MODES[mode].final;
+    summarizeEffort();
 
     // The meeting is over, but the processing winds down slowly.
     let glow = 1;
@@ -1801,6 +1984,7 @@
     line("beatC", 1, 15400);
     line("beatC", 2, 17800);
     line("beatC", 3, 19400);
+    line("beatC", 4, 21400);
   }
 
   /* =========================================================
